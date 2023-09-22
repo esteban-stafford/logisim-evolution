@@ -11,6 +11,7 @@ package com.cburch.logisim.std;
 
 import static com.cburch.logisim.std.Strings.S;
 
+import es.unican.atc.Components;
 import com.cburch.logisim.uc.UC;
 import com.cburch.logisim.soc.Soc;
 import com.cburch.logisim.std.arith.ArithmeticLibrary;
@@ -58,7 +59,8 @@ public class Builtin extends Library {
             new BfhLibrary(),
             new ExtraIoLibrary(),
             new Soc(),
-	    new UC());
+	    new UC(),
+	    new Components());
   }
 
   @Override
