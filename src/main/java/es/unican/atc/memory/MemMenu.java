@@ -112,7 +112,8 @@ class MemMenu implements ActionListener, MenuExtender {
     }
 
     private void doSave() {
-        MemState s = factory.getState(instance, circState);
+       // TODO: implement this
+/*        MemState s = factory.getState(instance, circState);
 
         JFileChooser chooser = proj.createChooser();
         File oldSelected = factory.getCurrentImage(instance);
@@ -128,6 +129,6 @@ class MemMenu implements ActionListener, MenuExtender {
                 JOptionPane.showMessageDialog(frame, e.getMessage(),
                         Strings.get("ramSaveErrorTitle"), JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
+        }*/
+    } 
 }

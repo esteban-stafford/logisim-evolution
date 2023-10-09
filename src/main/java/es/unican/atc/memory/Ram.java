@@ -50,7 +50,7 @@ public class Ram extends Mem {
     private static Object[][] logOptions = new Object[9][];
 
     public Ram() {
-        super("RAM", new SimpleStringGetter("RAM"), 3);
+        super("CSRAM", new SimpleStringGetter("CSRAM"), 3);
         setInstanceLogger(Logger.class);
     }
 
@@ -138,8 +138,12 @@ public class Ram extends Mem {
 
     @Override
     HexFrame getHexFrame(Project proj, Instance instance, CircuitState circState) {
+       // TODO: implement this
+        return null;
+       /*
         RamState state = (RamState) getState(instance, circState);
         return state.getHexFrame(proj);
+        */
     }
 
     static final Value[] vmask = new Value[] { /* 0:xxxxxxxx */ Value.createUnknown(BitWidth.create(32)),
@@ -207,7 +211,7 @@ public class Ram extends Mem {
             return;
         }
 
-        int addr = addrValue.toIntValue();
+        long addr = addrValue.toLongValue();
         if (!addrValue.isFullyDefined() || addr < 0)
             return;
         if (addr != myState.getCurrent()) {
@@ -226,15 +230,15 @@ public class Ram extends Mem {
             }
             if (shouldStore) {
                 Value dataValue = state.getPortValue(separate ? DIN : DATA);
-                int newVal = dataValue.toIntValue();
-                int oldVal = myState.getContents().get(addr);
+                long newVal = dataValue.toLongValue();
+                long oldVal = myState.getContents().get(addr);
                 newVal = (newVal & bmask) | (oldVal & ~bmask);
                 myState.getContents().set(addr, newVal);
             }
         }
 
         if (outputEnabled) {
-            int val = myState.getContents().get(addr);
+            long val = myState.getContents().get(addr);
             Value[] vals = vmask[mask].getAll();
             // vmask[mask] is x's and zeroes right now.
             // Just need to change any zeroes to ones if they are 1 in val.
@@ -281,7 +285,7 @@ public class Ram extends Mem {
         Graphics g = painter.getGraphics();
         Font old = g.getFont();
         g.setFont(old.deriveFont(9.0f));
-        GraphicsUtil.drawCenteredText(g, "RAM", 10, 9);
+        GraphicsUtil.drawCenteredText(g, "CSRAM", 10, 9);
         g.setFont(old);
         g.drawRect(0, 4, 19, 12);
         for (int dx = 2; dx < 20; dx += 5) {
@@ -327,6 +331,9 @@ public class Ram extends Mem {
 
         // Retrieves a HexFrame for editing within a separate window
         public HexFrame getHexFrame(Project proj) {
+           // TODO: implement this
+            return null;
+           /*
             if (hexFrame == null) {
                 hexFrame = new HexFrame(proj, getContents());
                 hexFrame.addWindowListener(new WindowAdapter() {
@@ -336,7 +343,7 @@ public class Ram extends Mem {
                     }
                 });
             }
-            return hexFrame;
+            return hexFrame; */
         }
 
         //
@@ -358,6 +365,11 @@ public class Ram extends Mem {
 
     public static class Logger extends InstanceLogger {
         @Override
+        public BitWidth getBitWidth(InstanceState state, Object option) {
+            return BitWidth.create(state.getAttributeValue(ADDR_ATTR).getWidth());
+        }
+
+        @Override
         public Object[] getLogOptions(InstanceState state) {
             int addrBits = state.getAttributeValue(ADDR_ATTR).getWidth();
             if (addrBits >= logOptions.length)
@@ -378,7 +390,7 @@ public class Ram extends Mem {
         @Override
         public String getLogName(InstanceState state, Object option) {
             if (option instanceof Integer) {
-                String disp = "MIPSRAM";
+                String disp = "CSRAM";
                 Location loc = state.getInstance().getLocation();
                 return disp + loc + "[" + option + "]";
             } else {

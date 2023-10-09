@@ -139,9 +139,12 @@ abstract class Mem extends InstanceFactory {
 
     public void loadImage(InstanceState instanceState, File imageFile)
             throws IOException {
+       // TODO: Implement this
+       /*
         MemState s = this.getState(instanceState);
         HexFile.open(s.getContents(), imageFile);
         this.setCurrentImage(instanceState.getInstance(), imageFile);
+       */
     }
 
     @Override
@@ -158,7 +161,7 @@ abstract class Mem extends InstanceFactory {
         public void metainfoChanged(HexModel source) { }
 
         public void bytesChanged(HexModel source, long start,
-                long numBytes, int[] values) {
+                long numBytes, long[] values) {
             instance.fireInvalidated();
         }
     }

@@ -19,6 +19,11 @@ public final class StringUtil {
     throw new IllegalStateException("Utility class. No instantiation allowed.");
   }
 
+  public static String format(String fmt, String... args) {
+   return String.format(fmt, (Object[]) args);
+  }
+
+
   public static StringGetter constantGetter(final String value) {
     return new StringGetter() {
       @Override

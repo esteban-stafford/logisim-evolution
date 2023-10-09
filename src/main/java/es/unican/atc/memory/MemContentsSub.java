@@ -24,20 +24,20 @@ class MemContentsSub {
             }
         }
         abstract int getLength();
-        abstract int get(int addr);
-        abstract void set(int addr, int value);
+        abstract long get(int addr);
+        abstract void set(int addr, long value);
         abstract void clear();
-        abstract void load(int start, int[] values, int mask);
+        abstract void load(int start, long[] values, int mask);
 
-        boolean matches(int[] values, int start, int mask) {
+        boolean matches(long[] values, int start, int mask) {
             for (int i = 0; i < values.length; i++) {
                 if (get(start + i) != (values[i] & mask)) return false;
             }
             return true;
         }
 
-        int[] get(int start, int len) {
-            int[] ret = new int[len];
+        long[] get(int start, int len) {
+            long[] ret = new long[len];
             for (int i = 0; i < ret.length; i++) ret[i] = get(start + i);
             return ret;
         }
@@ -74,12 +74,12 @@ class MemContentsSub {
         }
 
         @Override
-        int get(int addr) {
+        long get(int addr) {
             return addr >= 0 && addr < data.length ? data[addr] : 0;
         }
 
         @Override
-        void set(int addr, int value) {
+        void set(int addr, long value) {
             if (addr >= 0 && addr < data.length) {
                 byte oldValue = data[addr];
                 if (value != oldValue) {
@@ -94,7 +94,7 @@ class MemContentsSub {
         }
 
         @Override
-        void load(int start, int[] values, int mask) {
+        void load(int start, long[] values, int mask) {
             int n = Math.min(values.length, data.length - start);
             for (int i = 0; i < n; i++) {
                 data[start + i] = (byte) (values[i] & mask);
@@ -126,12 +126,12 @@ class MemContentsSub {
         }
 
         @Override
-        int get(int addr) {
+        long get(int addr) {
             return addr >= 0 && addr < data.length ? data[addr] : 0;
         }
 
         @Override
-        void set(int addr, int value) {
+        void set(int addr, long value) {
             if (addr >= 0 && addr < data.length) {
                 short oldValue = data[addr];
                 if (value != oldValue) {
@@ -146,7 +146,7 @@ class MemContentsSub {
         }
 
         @Override
-        void load(int start, int[] values, int mask) {
+        void load(int start, long[] values, int mask) {
             int n = Math.min(values.length, data.length - start);
             for (int i = 0; i < n; i++) {
                 data[start + i] = (short) (values[i] & mask);
@@ -155,16 +155,16 @@ class MemContentsSub {
     }
 
     private static class IntContents extends ContentsInterface {
-        private int[] data;
+        private long[] data;
 
         public IntContents(int size) {
-            data = new int[size];
+            data = new long[size];
         }
 
         @Override
         public IntContents clone() {
             IntContents ret = (IntContents) super.clone();
-            ret.data = new int[this.data.length];
+            ret.data = new long[this.data.length];
             System.arraycopy(this.data, 0, ret.data, 0, this.data.length);
             return ret;
         }
@@ -178,14 +178,14 @@ class MemContentsSub {
         }
 
         @Override
-        int get(int addr) {
+        long get(int addr) {
             return addr >= 0 && addr < data.length ? data[addr] : 0;
         }
 
         @Override
-        void set(int addr, int value) {
+        void set(int addr, long value) {
             if (addr >= 0 && addr < data.length) {
-                int oldValue = data[addr];
+                long oldValue = data[addr];
                 if (value != oldValue) {
                     data[addr] = value;
                 }
@@ -198,7 +198,7 @@ class MemContentsSub {
         }
 
         @Override
-        void load(int start, int[] values, int mask) {
+        void load(int start, long[] values, int mask) {
             int n = Math.min(values.length, data.length - start);
             for (int i = 0; i < n; i++) {
                 data[i] = values[i] & mask;
