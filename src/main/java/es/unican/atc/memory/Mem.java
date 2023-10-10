@@ -62,7 +62,9 @@ abstract class Mem extends InstanceFactory {
         setInstancePoker(MemPoker.class);
         setKeyConfigurator(new BitWidthConfigurator(ADDR_ATTR, 2, 24, 0));
 
-        setOffsetBounds(Bounds.create(-140, -40, 140, 80));
+        int device_width = 160;
+        int device_height = 120;
+        setOffsetBounds(Bounds.create(-device_width/2, -device_height/2, device_width, device_height));
     }
     
     abstract void configurePorts(Instance instance);
@@ -80,12 +82,11 @@ abstract class Mem extends InstanceFactory {
     }
     
     void configureStandardPorts(Instance instance, Port[] ps) {
-        ps[DATA] = new Port(   0,  0, Port.INOUT, DATA_ATTR);
-        ps[ADDR] = new Port(-140,  0, Port.INPUT, ADDR_ATTR);
-        ps[CS]   = new Port( -90, 40, Port.INPUT, 4);
-        ps[DATA].setToolTip(Strings.getter("memDataTip"));
-        ps[ADDR].setToolTip(Strings.getter("memAddrTip"));
-        ps[CS].setToolTip(new SimpleStringGetter("Byte selects: each 0 disables access to one byte of the addressed word."));
+        Bounds bounds = instance.getBounds();
+        bounds = bounds.translate(-bounds.getX()-bounds.getWidth()/2, -bounds.getY()-bounds.getHeight()/2);
+        ps[DATA] = new Port(bounds.getRight(), bounds.getBottomwards(0.75f), Port.INOUT, DATA_ATTR);
+        ps[ADDR] = new Port(bounds.getX(), bounds.getBottomwards(0.25f), Port.INPUT, ADDR_ATTR);
+        ps[CS]   = new Port(bounds.getRightwards(0.5f), bounds.getY(), Port.INPUT, 4);
     }
 
     @Override
@@ -123,10 +124,10 @@ abstract class Mem extends InstanceFactory {
         }
 
         // draw input and output ports
-        painter.drawPort(DATA, Strings.get("ramDataLabel"), Direction.WEST);
-        painter.drawPort(ADDR, Strings.get("ramAddrLabel"), Direction.EAST);
+        painter.drawPort(DATA, "DOUT", Direction.WEST);
+        painter.drawPort(ADDR, "ADDR", Direction.EAST);
         g.setColor(Color.GRAY);
-        painter.drawPort(CS, Strings.get("ramCSLabel"), Direction.SOUTH);
+        painter.drawPort(CS, "CS", Direction.NORTH);
     }
     
     File getCurrentImage(Instance instance) {

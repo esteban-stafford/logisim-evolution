@@ -203,6 +203,22 @@ public class Bounds {
     return y;
   }
 
+  public int getRight() {
+    return x + wid;
+  }
+
+  public int getBottom() {
+    return y + ht;
+  }
+
+  public int getRightwards(float frac) {
+    return x + (int) (wid * frac);
+  }
+
+  public int getBottomwards(float frac) {
+    return y + (int) (ht * frac);
+  }
+
   @Override
   public int hashCode() {
     int ret = 31 * x + y;

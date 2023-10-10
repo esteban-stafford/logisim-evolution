@@ -26,7 +26,7 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
     private static final int ENTRY_XOFFS12 = 60; //40; // x offset for entries for addr bits <= 12
     private static final int ENTRY_XOFFS32 = 60; // x offset for entries for addr bits > 12
 
-    private static final int ENTRY_YOFFS = 5; // y offset for entries
+    private static final int ENTRY_YOFFS = 20; // y offset for entries
 
     private static final int ADDR_WIDTH_PER_CHAR = 10; // pixels wide per address character
     private static /*final*/ int DATA_WIDTH_PER_BYTE = 0; // pixels wide per data byte (2 characters)

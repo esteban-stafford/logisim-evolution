@@ -19,6 +19,7 @@ import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.AttributeSets;
 import com.cburch.logisim.data.Attributes;
 import com.cburch.logisim.data.BitWidth;
+import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.data.Value;
@@ -70,6 +71,8 @@ public class Ram extends Mem {
     void configurePorts(Instance instance) {
         boolean asynch = false;
         boolean separate = true;
+        Bounds bounds = instance.getBounds();
+        bounds = bounds.translate(-bounds.getX()-bounds.getWidth()/2, -bounds.getY()-bounds.getHeight()/2);
 
         int portCount = MEM_INPUTS;
         if (asynch)
@@ -81,21 +84,14 @@ public class Ram extends Mem {
         Port[] ps = new Port[portCount];
 
         configureStandardPorts(instance, ps);
-        ps[OE] = new Port(-50, 40, Port.INPUT, 1);
-        ps[OE].setToolTip(Strings.getter("ramOETip"));
-        ps[CLR] = new Port(-30, 40, Port.INPUT, 1);
-        ps[CLR].setToolTip(Strings.getter("ramClrTip"));
+        ps[OE] = new Port(bounds.getRightwards(0.75f),bounds.getY(), Port.INPUT, 1);
+        ps[CLR] = new Port(bounds.getRightwards(0.25f), bounds.getY(), Port.INPUT, 1);
         if (!asynch) {
-            ps[CLK] = new Port(-70, 40, Port.INPUT, 1);
-            ps[CLK].setToolTip(Strings.getter("ramClkTip"));
+            ps[CLK] = new Port(bounds.getRightwards(0.5f), bounds.getBottom(), Port.INPUT, 1);
         }
         if (separate) {
-            ps[WE] = new Port(-110, 40, Port.INPUT, 1);
-            ps[WE].setToolTip(Strings.getter("ramWETip"));
-            ps[DIN] = new Port(-140, 20, Port.INPUT, DATA_ATTR);
-            ps[DIN].setToolTip(Strings.getter("ramInTip"));
-        } else {
-            ps[DATA].setToolTip(Strings.getter("ramBusTip"));
+            ps[WE] = new Port(bounds.getRightwards(0.25f), bounds.getBottom(), Port.INPUT, 1);
+            ps[DIN] = new Port(bounds.getX(), bounds.getBottomwards(0.75f), Port.INPUT, DATA_ATTR);
         }
         instance.setPorts(ps);
     }
@@ -270,13 +266,13 @@ public class Ram extends Mem {
 
         if (!asynch)
             painter.drawClock(CLK, Direction.NORTH);
-        painter.drawPort(OE, Strings.get("ramOELabel"), Direction.SOUTH);
-        painter.drawPort(CLR, Strings.get("ramClrLabel"), Direction.SOUTH);
+        painter.drawPort(OE, "OE", Direction.NORTH);
+        painter.drawPort(CLR, "CLR", Direction.NORTH);
 
         if (separate) {
-            painter.drawPort(WE, Strings.get("ramWELabel"), Direction.SOUTH);
+            painter.drawPort(WE, "WE", Direction.SOUTH);
             painter.getGraphics().setColor(Color.BLACK);
-            painter.drawPort(DIN, Strings.get("ramDataLabel"), Direction.EAST);
+            painter.drawPort(DIN, "DIN", Direction.EAST);
         }
     }
 
