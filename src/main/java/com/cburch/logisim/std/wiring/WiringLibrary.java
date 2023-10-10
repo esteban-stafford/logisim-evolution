@@ -12,6 +12,7 @@ package com.cburch.logisim.std.wiring;
 import static com.cburch.logisim.std.Strings.S;
 
 import com.cburch.logisim.circuit.SplitterFactory;
+import com.cburch.logisim.circuit.TapFactory;
 import com.cburch.logisim.tools.AddTool;
 import com.cburch.logisim.tools.FactoryDescription;
 import com.cburch.logisim.tools.Library;
@@ -32,6 +33,7 @@ public class WiringLibrary extends Library {
 
   private static final Tool[] ADD_TOOLS = {
     new AddTool(SplitterFactory.instance),
+    new AddTool(TapFactory.instance),
     new AddTool(Pin.FACTORY),
     new AddTool(Probe.FACTORY),
     new AddTool(Tunnel.FACTORY),
