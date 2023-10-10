@@ -57,14 +57,10 @@ public class TapFactory extends AbstractComponentFactory {
     final var attrs = (TapAttributes) attrsBase;
     context.getGraphics().setColor(color);
     final var loc = Location.create(x, y, true);
-    if (attrs.appear == TapAttributes.APPEAR_LEGACY) {
-      TapPainter.drawLegacy(context, attrs, loc);
-    } else {
-      TapPainter.drawLines(context, attrs, loc);
-    }
+    TapPainter.drawLines(context, attrs, loc);
   }
 
-  @Override
+  /*@Override
   public Object getDefaultAttributeValue(Attribute<?> attr, LogisimVersion ver) {
     if (attr == TapAttributes.ATTR_APPEARANCE) {
       if (ver.compareTo(new LogisimVersion(2, 6, 4)) < 0) {
@@ -77,13 +73,14 @@ public class TapFactory extends AbstractComponentFactory {
     } else {
       return super.getDefaultAttributeValue(attr, ver);
     }
-  }
+  } */
 
   @Override
   public StringGetter getDisplayGetter() {
     return S.getter("tapComponent");
   }
 
+  /*
   @Override
   public Object getFeature(Object key, AttributeSet attrs) {
     if (key == FACING_ATTRIBUTE_KEY) {
@@ -99,6 +96,7 @@ public class TapFactory extends AbstractComponentFactory {
     }
     return super.getFeature(key, attrs);
   }
+  */
 
   @Override
   public String getName() {

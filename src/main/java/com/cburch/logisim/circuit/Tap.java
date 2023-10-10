@@ -150,14 +150,10 @@ public class Tap extends ManagedComponent
   @Override
   public void draw(ComponentDrawContext context) {
     final var attrs = (TapAttributes) getAttributeSet();
-    if (attrs.appear == TapAttributes.APPEAR_LEGACY) {
-      TapPainter.drawLegacy(context, attrs, getLocation());
-    } else {
-      final var loc = getLocation();
-      TapPainter.drawLines(context, attrs, loc);
-      TapPainter.drawLabels(context, attrs, loc);
-      context.drawPins(this);
-    }
+    final var loc = getLocation();
+    TapPainter.drawLines(context, attrs, loc);
+    TapPainter.drawLabels(context, attrs, loc);
+    context.drawPins(this);
     if (isMarked) {
       final var g = context.getGraphics();
       final var bds = this.getBounds();

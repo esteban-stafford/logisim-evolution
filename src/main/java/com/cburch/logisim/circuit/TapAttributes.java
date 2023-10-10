@@ -174,27 +174,15 @@ public class TapAttributes extends AbstractAttributeSet {
     return ret;
   }
 
-  public static final AttributeOption APPEAR_LEGACY = new AttributeOption("legacy", S.getter("splitterAppearanceLegacy"));
-
   public static final Attribute<Integer> ATTR_SPACING = Attributes.forIntegerRange("spacing", S.getter("splitterSpacing"), 1, 9);
-
-  public static final AttributeOption APPEAR_LEFT = new AttributeOption("left", S.getter("splitterAppearanceLeft"));
-
-  public static final AttributeOption APPEAR_RIGHT = new AttributeOption("right", S.getter("splitterAppearanceRight"));
-  public static final AttributeOption APPEAR_CENTER = new AttributeOption("center", S.getter("splitterAppearanceCenter"));
-
-  public static final Attribute<AttributeOption> ATTR_APPEARANCE = Attributes.forOption("appear", S.getter("splitterAppearanceAttr"), new AttributeOption[] {APPEAR_LEFT, APPEAR_RIGHT, APPEAR_CENTER, APPEAR_LEGACY});
 
   public static final Attribute<BitWidth> ATTR_WIDTH = Attributes.forBitWidth("incoming", S.getter("splitterBitWidthAttr"));
 
-  public static final Attribute<Integer> ATTR_FANOUT = Attributes.forIntegerRange("fanout", S.getter("splitterFanOutAttr"), 1, 64);
-
-  private static final List<Attribute<?>> INIT_ATTRIBUTES = Arrays.asList(StdAttr.FACING, ATTR_FANOUT, ATTR_WIDTH, ATTR_APPEARANCE, ATTR_SPACING);
+  private static final List<Attribute<?>> INIT_ATTRIBUTES = Arrays.asList(StdAttr.FACING, ATTR_WIDTH, ATTR_SPACING);
 
   private static final String UNCHOSEN_VAL = "none";
   private ArrayList<Attribute<?>> attrs = new ArrayList<>(INIT_ATTRIBUTES);
   private TapParameters parameters;
-  AttributeOption appear = APPEAR_LEFT;
   Direction facing = Direction.EAST;
   int spacing = 1;
   byte fanout = 2; // number of ends this splits into
@@ -281,7 +269,6 @@ public class TapAttributes extends AbstractAttributeSet {
 
     dest.facing = this.facing;
     dest.fanout = this.fanout;
-    dest.appear = this.appear;
     dest.spacing = this.spacing;
     dest.bitEnd = this.bitEnd.clone();
     dest.options = this.options;
@@ -306,12 +293,8 @@ public class TapAttributes extends AbstractAttributeSet {
   public <V> V getValue(Attribute<V> attr) {
     if (attr == StdAttr.FACING) {
       return (V) facing;
-    } else if (attr == ATTR_FANOUT) {
-      return (V) Integer.valueOf(fanout);
     } else if (attr == ATTR_WIDTH) {
       return (V) BitWidth.create(bitEnd.length);
-    } else if (attr == ATTR_APPEARANCE) {
-      return (V) appear;
     } else if (attr == ATTR_SPACING) {
       return (V) Integer.valueOf(spacing);
     } else if (attr instanceof BitOutAttribute bitOut) {
@@ -329,17 +312,6 @@ public class TapAttributes extends AbstractAttributeSet {
       facing = (Direction) value;
       configureOptions();
       parameters = null;
-    } else if (attr == ATTR_FANOUT) {
-      int newValue = (Integer) value;
-      final var bits = bitEnd;
-      for (var i = 0; i < bits.length; i++) {
-        if (bits[i] > newValue) bits[i] = (byte) newValue;
-      }
-      if (fanout == (byte) newValue) return;
-      fanout = (byte) newValue;
-      configureOptions();
-      configureDefaults();
-      parameters = null;
     } else if (attr == ATTR_WIDTH) {
       final var width = (BitWidth) value;
       if (bitEnd.length == width.getWidth()) return;
@@ -350,11 +322,6 @@ public class TapAttributes extends AbstractAttributeSet {
       final var s = (Integer) value;
       if (s == spacing) return;
       spacing = s;
-      parameters = null;
-    } else if (attr == ATTR_APPEARANCE) {
-      final var appearance = (AttributeOption) value;
-      if (appear.equals(appearance)) return;
-      appear = appearance;
       parameters = null;
     } else if (attr instanceof BitOutAttribute bitOutAttr) {
       int val = (value instanceof Integer) ? (Integer) value : ((BitOutOption) value).value + 1;
@@ -370,7 +337,7 @@ public class TapAttributes extends AbstractAttributeSet {
 
   @Override
   public <V> List<Attribute<?>> attributesMayAlsoBeChanged(Attribute<V> attr, V value) {
-    if (attr != ATTR_FANOUT && attr != ATTR_WIDTH) {
+    if (attr != ATTR_WIDTH) {
       return null;
     }
     if (Objects.equals(getValue(attr), value)) {

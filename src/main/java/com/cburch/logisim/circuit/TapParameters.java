@@ -28,18 +28,10 @@ class TapParameters {
   private final int valign;
 
   TapParameters(TapAttributes attrs) {
-    final var appear = attrs.appear;
     final var fanout = attrs.fanout;
     final var facing = attrs.facing;
 
-    int justify;
-    if (appear == TapAttributes.APPEAR_CENTER || appear == TapAttributes.APPEAR_LEGACY) {
-      justify = 0;
-    } else if (appear == TapAttributes.APPEAR_RIGHT) {
-      justify = 1;
-    } else {
-      justify = -1;
-    }
+    int justify = 0;
     final var width = 20;
 
     final var gap = attrs.spacing * 10;
