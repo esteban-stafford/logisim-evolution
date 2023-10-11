@@ -28,7 +28,7 @@ class TapParameters {
   private final int valign;
 
   TapParameters(TapAttributes attrs) {
-    final var fanout = attrs.fanout;
+    final var fanout = 2;
     final var facing = attrs.facing;
 
     int justify = 0;

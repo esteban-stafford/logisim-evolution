@@ -89,7 +89,7 @@ public class Tap extends ManagedComponent
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
     final var parms = attrs.getParameters();
-    final var fanout = attrs.fanout;
+    final var fanout = 2;
     final var bitEnd = attrs.bitEnd;
 
     // compute width of each end

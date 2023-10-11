@@ -140,7 +140,6 @@ public class TapAttributes extends AbstractAttributeSet {
   Direction facing = Direction.EAST;
   int from = 0;
   int to = 0;
-  byte fanout = 2; // number of ends this splits into
   byte[] bitEnd = new byte[2]; // how each bit maps to an end (0 if nowhere);
 
   // other values will be between 1 and fanout
@@ -196,7 +195,7 @@ public class TapAttributes extends AbstractAttributeSet {
   }
 
   private void configureOptions() {
-    // compute the set of options for BitOutAttributes
+  /*  // compute the set of options for BitOutAttributes
     options = new BitOutOption[fanout + 1];
     var isVertical = facing == Direction.EAST || facing == Direction.WEST;
     for (var i = -1; i < fanout; i++) {
@@ -209,7 +208,7 @@ public class TapAttributes extends AbstractAttributeSet {
     for (var i = 0; i < curNum; i++) {
       final var attr = (BitOutAttribute) attrs.get(offs + i);
       attr.options = options;
-    }
+    } */
   }
 
   @Override
@@ -224,7 +223,8 @@ public class TapAttributes extends AbstractAttributeSet {
     }
 
     dest.facing = this.facing;
-    dest.fanout = this.fanout;
+    dest.from = this.from;
+    dest.to = this.to;
     dest.bitEnd = this.bitEnd.clone();
     dest.options = this.options;
   }
@@ -287,12 +287,6 @@ public class TapAttributes extends AbstractAttributeSet {
       to = newTo;
       configureOptions();
       //configureDefaults();
-    } else if (attr instanceof BitOutAttribute bitOutAttr) {
-      int val = (value instanceof Integer) ? (Integer) value : ((BitOutOption) value).value + 1;
-      if (val >= 0 && val <= fanout) {
-        if (bitEnd[bitOutAttr.which] == (byte) val) return;
-        bitEnd[bitOutAttr.which] = (byte) val;
-      } else return;
     } else {
       throw new IllegalArgumentException("unknown attribute " + attr);
     }
