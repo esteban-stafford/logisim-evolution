@@ -89,14 +89,13 @@ public class Tap extends ManagedComponent
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
     final var parms = attrs.getParameters();
-    final var bitEnd = attrs.bitEnd;
 
     // compute end positions
     final var ends = new EndData[2];
     final var origin = getLocation();
-    ends[0] = new EndData(origin, BitWidth.create(bitEnd.length), EndData.INPUT_OUTPUT);
+    ends[0] = new EndData(origin, BitWidth.create(attrs.width), EndData.INPUT_OUTPUT);
     var x = origin.getX() + parms.getEnd0X();
-    var y = origin.getY() + parms.getEnd0Y();
+    var y = origin.getY();
     ends[1] = new EndData(Location.create(x, y, true), BitWidth.create(attrs.to-attrs.from+1), EndData.INPUT_OUTPUT);
     wireData = new CircuitWires.SplitterData(1); // TODO: Used to be fanout
 
@@ -138,12 +137,12 @@ public class Tap extends ManagedComponent
       final var bds = this.getBounds();
       g.setColor(Netlist.DRC_INSTANCE_MARK_COLOR);
       GraphicsUtil.switchToWidth(g, 2);
-      g.drawRoundRect(bds.getX() - 10, bds.getY() - 10, bds.getWidth() + 20, bds.getHeight() + 20, 20, 20);
+      g.drawRoundRect(bds.getX() - 10, bds.getY(), bds.getWidth() + 20, bds.getHeight() + 20, 20, 20);
     }
   }
 
   public byte[] getEndpoints() {
-    return ((TapAttributes) getAttributeSet()).bitEnd;
+    return new byte[] {0, 1};
   }
 
   //
@@ -167,42 +166,7 @@ public class Tap extends ManagedComponent
 
   @Override
   public String getToolTip(ComponentUserEvent e) {
-    var end = -1;
-    for (var i = getEnds().size() - 1; i >= 0; i--) {
-      if (getEndLocation(i).manhattanDistanceTo(e.getX(), e.getY()) < 10) {
-        end = i;
-        break;
-      }
-    }
-
-    if (end == 0) return S.get("splitterCombinedTip");
-    if (end < 0) return null;
-    var bits = 0;
-    final var buffer = new StringBuilder();
-    final var attrs = (TapAttributes) getAttributeSet();
-    final var bitEnd = attrs.bitEnd;
-    var inString = false;
-    var beginString = 0;
-    for (var i = 0; i < bitEnd.length; i++) {
-      if (bitEnd[i] == end) {
-        bits++;
-        if (!inString) {
-          inString = true;
-          beginString = i;
-        }
-      } else if (inString) {
-        appendBuf(buffer, i - 1, beginString);
-        inString = false;
-      }
-    }
-
-    if (inString) appendBuf(buffer, bitEnd.length - 1, beginString);
-    final var base = switch (bits) {
-      case 0 -> S.get("splitterSplit0Tip");
-      case 1 -> S.get("splitterSplit1Tip");
-      default -> S.get("splitterSplitManyTip");
-    };
-    return String.format(base, buffer.toString());
+    return new String("Hello");
   }
 
   @Override
