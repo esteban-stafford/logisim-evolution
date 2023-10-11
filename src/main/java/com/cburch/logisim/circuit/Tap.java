@@ -89,38 +89,17 @@ public class Tap extends ManagedComponent
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
     final var parms = attrs.getParameters();
-    final var fanout = 2;
     final var bitEnd = attrs.bitEnd;
 
-    // compute width of each end
-    bitThread = new byte[bitEnd.length];
-    final var endWidth = new byte[fanout + 1];
-    endWidth[0] = (byte) bitEnd.length;
-    for (var i = 0; i < bitEnd.length; i++) {
-      final var thr = bitEnd[i];
-      if (thr > 0) {
-        bitThread[i] = endWidth[thr];
-        endWidth[thr]++;
-      } else {
-        bitThread[i] = -1;
-      }
-    }
-
     // compute end positions
+    final var ends = new EndData[2];
     final var origin = getLocation();
+    ends[0] = new EndData(origin, BitWidth.create(bitEnd.length), EndData.INPUT_OUTPUT);
     var x = origin.getX() + parms.getEnd0X();
     var y = origin.getY() + parms.getEnd0Y();
-    final var dx = parms.getEndToEndDeltaX();
-    final var dy = parms.getEndToEndDeltaY();
+    ends[1] = new EndData(Location.create(x, y, true), BitWidth.create(attrs.to-attrs.from+1), EndData.INPUT_OUTPUT);
+    wireData = new CircuitWires.SplitterData(1); // TODO: Used to be fanout
 
-    final var ends = new EndData[fanout + 1];
-    ends[0] = new EndData(origin, BitWidth.create(bitEnd.length), EndData.INPUT_OUTPUT);
-    for (var i = 0; i < fanout; i++) {
-      ends[i + 1] = new EndData(Location.create(x, y, true), BitWidth.create(endWidth[i + 1]), EndData.INPUT_OUTPUT);
-      x += dx;
-      y += dy;
-    }
-    wireData = new CircuitWires.SplitterData(fanout);
     setEnds(ends);
     recomputeBounds();
     fireComponentInvalidated(new ComponentEvent(this));
