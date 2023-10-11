@@ -126,65 +126,20 @@ public class TapAttributes extends AbstractAttributeSet {
     }
   }
 
-  static byte[] computeDistribution(int fanout, int bits, int order) {
-    final var ret = new byte[bits];
-    if (order >= 0) {
-      if (fanout >= bits) {
-        for (var i = 0; i < bits; i++) ret[i] = (byte) (i + 1);
-      } else {
-        final var threads_per_end = bits / fanout;
-        var endsWithExtra = bits % fanout;
-        var curEnd = -1; // immediately increments
-        var leftInEnd = 0;
-        for (var i = 0; i < bits; i++) {
-          if (leftInEnd == 0) {
-            ++curEnd;
-            leftInEnd = threads_per_end;
-            if (endsWithExtra > 0) {
-              ++leftInEnd;
-              --endsWithExtra;
-            }
-          }
-          ret[i] = (byte) (1 + curEnd);
-          --leftInEnd;
-        }
-      }
-    } else {
-      if (fanout >= bits) {
-        for (int i = 0; i < bits; i++) ret[i] = (byte) (fanout - i);
-      } else {
-        final var threads_per_end = bits / fanout;
-        var endsWithExtra = bits % fanout;
-        var curEnd = -1;
-        var leftInEnd = 0;
-        for (int i = bits - 1; i >= 0; i--) {
-          if (leftInEnd == 0) {
-            ++curEnd;
-            leftInEnd = threads_per_end;
-            if (endsWithExtra > 0) {
-              ++leftInEnd;
-              --endsWithExtra;
-            }
-          }
-          ret[i] = (byte) (1 + curEnd);
-          --leftInEnd;
-        }
-      }
-    }
-    return ret;
-  }
 
-  public static final Attribute<Integer> ATTR_SPACING = Attributes.forIntegerRange("spacing", S.getter("splitterSpacing"), 1, 9);
+  public static final Attribute<Integer> ATTR_FROM = Attributes.forIntegerRange("from", S.getter("tapFrom"),0,31);
+  public static final Attribute<Integer> ATTR_TO = Attributes.forIntegerRange("to", S.getter("tapTo"),0,31);
 
   public static final Attribute<BitWidth> ATTR_WIDTH = Attributes.forBitWidth("incoming", S.getter("splitterBitWidthAttr"));
 
-  private static final List<Attribute<?>> INIT_ATTRIBUTES = Arrays.asList(StdAttr.FACING, ATTR_WIDTH, ATTR_SPACING);
+  private static final List<Attribute<?>> INIT_ATTRIBUTES = Arrays.asList(StdAttr.FACING, ATTR_WIDTH, ATTR_FROM, ATTR_TO);
 
   private static final String UNCHOSEN_VAL = "none";
   private ArrayList<Attribute<?>> attrs = new ArrayList<>(INIT_ATTRIBUTES);
   private TapParameters parameters;
   Direction facing = Direction.EAST;
-  int spacing = 1;
+  int from = 0;
+  int to = 0;
   byte fanout = 2; // number of ends this splits into
   byte[] bitEnd = new byte[2]; // how each bit maps to an end (0 if nowhere);
 
@@ -210,7 +165,7 @@ public class TapAttributes extends AbstractAttributeSet {
     var curNum = attrs.size() - offs;
 
     // compute default values
-    final var dflt = computeDistribution(fanout, bitEnd.length, 1);
+    //final var dflt = computeDistribution(fanout, bitEnd.length, 1);
 
     var changed = curNum != bitEnd.length;
 
@@ -219,7 +174,7 @@ public class TapAttributes extends AbstractAttributeSet {
       curNum--;
       attrs.remove(offs + curNum);
     }
-
+    /*
     // set existing attributes
     for (var i = 0; i < curNum; i++) {
       if (bitEnd[i] != dflt[i]) {
@@ -235,6 +190,7 @@ public class TapAttributes extends AbstractAttributeSet {
       bitEnd[i] = dflt[i];
       attrs.add(attr);
     }
+    */
 
     if (changed) fireAttributeListChanged();
   }
@@ -269,7 +225,6 @@ public class TapAttributes extends AbstractAttributeSet {
 
     dest.facing = this.facing;
     dest.fanout = this.fanout;
-    dest.spacing = this.spacing;
     dest.bitEnd = this.bitEnd.clone();
     dest.options = this.options;
   }
@@ -295,8 +250,10 @@ public class TapAttributes extends AbstractAttributeSet {
       return (V) facing;
     } else if (attr == ATTR_WIDTH) {
       return (V) BitWidth.create(bitEnd.length);
-    } else if (attr == ATTR_SPACING) {
-      return (V) Integer.valueOf(spacing);
+    } else if (attr == ATTR_FROM) {
+      return (V) Integer.valueOf(from);
+    } else if (attr == ATTR_TO) {
+      return (V) Integer.valueOf(to);
     } else if (attr instanceof BitOutAttribute bitOut) {
       return (V) Integer.valueOf(bitEnd[bitOut.which]);
     } else {
@@ -318,11 +275,18 @@ public class TapAttributes extends AbstractAttributeSet {
       bitEnd = new byte[width.getWidth()];
       configureOptions();
       configureDefaults();
-    } else if (attr == ATTR_SPACING) {
-      final var s = (Integer) value;
-      if (s == spacing) return;
-      spacing = s;
-      parameters = null;
+    } else if (attr == ATTR_FROM) {
+      final var newFrom = (int) value;
+      if (newFrom == from) return;
+      from = newFrom;
+      configureOptions();
+      //configureDefaults();
+    } else if (attr == ATTR_TO) {
+      final var newTo = (int) value;
+      if (newTo == to) return;
+      to = newTo;
+      configureOptions();
+      //configureDefaults();
     } else if (attr instanceof BitOutAttribute bitOutAttr) {
       int val = (value instanceof Integer) ? (Integer) value : ((BitOutOption) value).value + 1;
       if (val >= 0 && val <= fanout) {

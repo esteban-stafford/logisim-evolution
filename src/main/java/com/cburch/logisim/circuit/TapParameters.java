@@ -34,7 +34,7 @@ class TapParameters {
     int justify = 0;
     final var width = 20;
 
-    final var gap = attrs.spacing * 10;
+    final var gap = 10;
     final var offs = 6;
     if (facing == Direction.NORTH || facing == Direction.SOUTH) { // ^ or V
       final var m = facing == Direction.NORTH ? 1 : -1;
