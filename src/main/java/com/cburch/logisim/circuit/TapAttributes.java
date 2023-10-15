@@ -42,8 +42,6 @@ public class TapAttributes extends AbstractAttributeSet {
   int width = 1;
 
   TapAttributes() {
-    configureOptions();
-    configureDefaults();
     parameters = new TapParameters(this);
   }
 
@@ -51,16 +49,6 @@ public class TapAttributes extends AbstractAttributeSet {
     if (index == 0)
       return false;
     return true;
-  }
-
-  private void configureDefaults() {
-    final var offs = INIT_ATTRIBUTES.size();
-    var curNum = attrs.size() - offs;
-    boolean changed = false;
-    if (changed) fireAttributeListChanged();
-  }
-
-  private void configureOptions() {
   }
 
   @Override
@@ -81,9 +69,9 @@ public class TapAttributes extends AbstractAttributeSet {
     return attrs;
   }
 
-  Attribute<?> getBitOutAttribute(int index) {
+  /*Attribute<?> getBitOutAttribute(int index) {
     return attrs.get(INIT_ATTRIBUTES.size() + index);
-  }
+  }*/
 
   public TapParameters getParameters() {
     if (parameters == null) parameters = new TapParameters(this);
@@ -112,7 +100,6 @@ public class TapAttributes extends AbstractAttributeSet {
       final var newFacing = (Direction) value;
       if (facing.equals(newFacing)) return;
       facing = (Direction) value;
-      configureOptions();
       parameters = null;
     } else if (attr == ATTR_WIDTH) {
       final var newWidth = (BitWidth) value;
@@ -120,23 +107,17 @@ public class TapAttributes extends AbstractAttributeSet {
       width = newWidth.getWidth();
       from = Math.min(from, width - 1);
       to = Math.min(to, width - 1);
-      configureOptions();
-      //configureDefaults();
     } else if (attr == ATTR_FROM) {
       var newFrom = (int) value;
       newFrom = Math.min(newFrom, width - 1);
       if (newFrom == from) return;
       to = Math.min(to + newFrom - from, width - 1);
       from = newFrom;
-      configureOptions();
-      //configureDefaults();
     } else if (attr == ATTR_TO) {
       var newTo = (int) value;
       newTo = Math.min(newTo, width - 1);
       if (newTo == to) return;
       to = newTo;
-      configureOptions();
-      //configureDefaults();
     } else {
       throw new IllegalArgumentException("unknown attribute " + attr);
     }

@@ -33,8 +33,7 @@ import com.cburch.logisim.tools.WireRepairData;
 import com.cburch.logisim.util.GraphicsUtil;
 import javax.swing.JPopupMenu;
 
-public class Tap extends ManagedComponent
-    implements WireRepair, ToolTipMaker, MenuExtender, AttributeListener {
+public class Tap extends Splitter {
 
   /**
    * Unique identifier of the tool, used as reference in project files.
@@ -63,14 +62,8 @@ public class Tap extends ManagedComponent
     return isMarked;
   }
 
-  // basic data
-  byte[] bitThread; // how each bit maps to thread within end
-
-  // derived data
-  CircuitWires.SplitterData wireData;
-
   public Tap(Location loc, AttributeSet attrs) {
-    super(loc, attrs, 3);
+    super(loc, attrs, 2);
     configureComponent();
     attrs.addAttributeListener(this);
   }
@@ -97,7 +90,7 @@ public class Tap extends ManagedComponent
     var x = origin.getX() + parms.getEnd0X();
     var y = origin.getY();
     ends[1] = new EndData(Location.create(x, y, true), BitWidth.create(attrs.to-attrs.from+1), EndData.INPUT_OUTPUT);
-    wireData = new CircuitWires.SplitterData(1); // TODO: Used to be fanout
+    wireData = new CircuitWires.SplitterData(1);
 
     setEnds(ends);
     recomputeBounds();
@@ -142,7 +135,22 @@ public class Tap extends ManagedComponent
   }
 
   public byte[] getEndpoints() {
-    return new byte[] {0, 1};
+    final var attrs = (TapAttributes) getAttributeSet();
+    byte[] result = new byte[attrs.width];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = (byte) (i >= attrs.from && i <= attrs.to ? 1 : 0);
+    }
+    return result;
+  }
+
+  public byte[] getThreads() {
+    final var attrs = (TapAttributes) getAttributeSet();
+    byte[] result = new byte[attrs.width];
+    byte j = 0;
+    for (int i = 0; i < result.length; i++) {
+      result[i] = (byte) (i >= attrs.from && i <= attrs.to ? j++ : -1);
+    }
+    return result;
   }
 
   //

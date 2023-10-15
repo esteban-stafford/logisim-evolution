@@ -69,6 +69,10 @@ public class Splitter extends ManagedComponent
   // derived data
   CircuitWires.SplitterData wireData;
 
+  public Splitter(Location loc, AttributeSet attrs, int num_ends) {
+    super(loc, attrs, num_ends);
+  }
+
   public Splitter(Location loc, AttributeSet attrs) {
     super(loc, attrs, 3);
     configureComponent();
@@ -173,6 +177,10 @@ public class Splitter extends ManagedComponent
 
   public byte[] getEndpoints() {
     return ((SplitterAttributes) getAttributeSet()).bitEnd;
+  }
+
+  public byte[] getThreads() {
+    return bitThread;
   }
 
   //

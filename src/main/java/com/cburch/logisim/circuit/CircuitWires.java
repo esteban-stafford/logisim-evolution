@@ -287,16 +287,18 @@ class CircuitWires {
     // unite threads going through splitters
     for (final var spl : splitters) {
       synchronized (spl) {
-        final var splAttrs = (SplitterAttributes) spl.getAttributeSet();
-        final var bitEnd = splAttrs.bitEnd;
+        final var bitEnd = spl.getEndpoints();
         final var splData = spl.wireData;
+        final var splThread = spl.getThreads();
+        System.out.println("bitEnd = " + Arrays.toString(bitEnd));
+        System.out.println("splThread = " + Arrays.toString(splThread));
         final var fromBundle = splData.endBundle[0];
         if (fromBundle == null || !fromBundle.isValid()) continue;
 
         for (var i = 0; i < bitEnd.length; i++) {
           var j = bitEnd[i];
           if (j > 0) {
-            var thr = spl.bitThread[i];
+            var thr = splThread[i];
             final var toBundle = splData.endBundle[j];
             final var toThreads = toBundle.threads;
             if (toThreads != null && toBundle.isValid()) {
