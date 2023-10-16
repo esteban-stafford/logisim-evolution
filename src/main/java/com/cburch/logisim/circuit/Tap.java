@@ -43,24 +43,8 @@ public class Tap extends Splitter {
    */
   public static final String _ID = "Tap";
 
-  private static void appendBuf(StringBuilder buf, int start, int end) {
-    if (buf.length() > 0) buf.append(",");
-    if (start == end) {
-      buf.append(start);
-    } else {
-      buf.append(start).append("-").append(end);
-    }
-  }
-
-  private boolean isMarked = false;
-
-  public void setMarked(boolean value) {
-    isMarked = value;
-  }
-
-  public boolean isMarked() {
-    return isMarked;
-  }
+  // basic data
+  byte[] bitEnd;
 
   public Tap(Location loc, AttributeSet attrs) {
     super(loc, attrs, 2);
@@ -68,20 +52,22 @@ public class Tap extends Splitter {
     attrs.addAttributeListener(this);
   }
 
-  //
-  // AttributeListener methods
-  //
-  @Override
-  public void attributeListChanged(AttributeEvent e) {}
-
-  @Override
-  public void attributeValueChanged(AttributeEvent e) {
-    configureComponent();
-  }
-
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
     final var parms = attrs.getParameters();
+
+    bitEnd = new byte[attrs.width];
+    for (int i = 0; i < bitEnd.length; i++) {
+      bitEnd[i] = (byte) (i >= attrs.from && i <= attrs.to ? 1 : 0);
+    }
+
+    // compute width of both ends
+    bitThread = new byte[bitEnd.length];
+    // for (int i = 0; i < result.length; i++) { result[i] = (byte) (i >= attrs.from && i <= attrs.to ? 1 : 0); }
+    byte j = 0;
+    for (var i = 0; i < bitEnd.length; i++) {
+      bitThread[i] = (byte) (i >= attrs.from && i <= attrs.to ? j++ : -1);
+    }
 
     // compute end positions
     final var ends = new EndData[2];
@@ -100,21 +86,6 @@ public class Tap extends Splitter {
   @Override
   public void configureMenu(JPopupMenu menu, Project proj) { }
 
-  @Override
-  public boolean contains(Location loc) {
-    if (super.contains(loc)) {
-      final var myLoc = getLocation();
-      final var facing = getAttributeSet().getValue(StdAttr.FACING);
-      if (facing == Direction.EAST || facing == Direction.WEST) {
-        return Math.abs(loc.getX() - myLoc.getX()) > 5 || loc.manhattanDistanceTo(myLoc) <= 5;
-      } else {
-        return Math.abs(loc.getY() - myLoc.getY()) > 5 || loc.manhattanDistanceTo(myLoc) <= 5;
-      }
-    } else {
-      return false;
-    }
-  }
-
   //
   // user interface methods
   //
@@ -125,7 +96,7 @@ public class Tap extends Splitter {
     TapPainter.drawLines(context, attrs, loc);
     TapPainter.drawLabels(context, attrs, loc);
     context.drawPins(this);
-    if (isMarked) {
+    if (isMarked()) {
       final var g = context.getGraphics();
       final var bds = this.getBounds();
       g.setColor(Netlist.DRC_INSTANCE_MARK_COLOR);
@@ -135,24 +106,8 @@ public class Tap extends Splitter {
   }
 
   public byte[] getEndpoints() {
-    final var attrs = (TapAttributes) getAttributeSet();
-    byte[] result = new byte[attrs.width];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = (byte) (i >= attrs.from && i <= attrs.to ? 1 : 0);
-    }
-    return result;
+    return bitEnd;
   }
-
-  public byte[] getThreads() {
-    final var attrs = (TapAttributes) getAttributeSet();
-    byte[] result = new byte[attrs.width];
-    byte j = 0;
-    for (int i = 0; i < result.length; i++) {
-      result[i] = (byte) (i >= attrs.from && i <= attrs.to ? j++ : -1);
-    }
-    return result;
-  }
-
   //
   // abstract ManagedComponent methods
   //
@@ -162,28 +117,8 @@ public class Tap extends Splitter {
   }
 
   @Override
-  public void setFactory(ComponentFactory fact) {}
-
-  @Override
-  public Object getFeature(Object key) {
-    if (key == WireRepair.class) return this;
-    if (key == ToolTipMaker.class) return this;
-    if (key == MenuExtender.class) return this;
-    else return super.getFeature(key);
-  }
-
-  @Override
   public String getToolTip(ComponentUserEvent e) {
     return new String("Hello");
   }
 
-  @Override
-  public void propagate(CircuitState state) {
-    // handled by CircuitWires, nothing to do
-  }
-
-  @Override
-  public boolean shouldRepairWire(WireRepairData data) {
-    return true;
-  }
 }

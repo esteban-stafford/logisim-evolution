@@ -290,8 +290,6 @@ class CircuitWires {
         final var bitEnd = spl.getEndpoints();
         final var splData = spl.wireData;
         final var splThread = spl.getThreads();
-        System.out.println("bitEnd = " + Arrays.toString(bitEnd));
-        System.out.println("splThread = " + Arrays.toString(splThread));
         final var fromBundle = splData.endBundle[0];
         if (fromBundle == null || !fromBundle.isValid()) continue;
 
