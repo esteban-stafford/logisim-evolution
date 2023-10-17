@@ -35,15 +35,10 @@ public class TapAttributes extends AbstractAttributeSet {
 
   private static final String UNCHOSEN_VAL = "none";
   private ArrayList<Attribute<?>> attrs = new ArrayList<>(INIT_ATTRIBUTES);
-  private TapParameters parameters;
   Direction facing = Direction.EAST;
   int from = 0;
   int to = 0;
   int width = 1;
-
-  TapAttributes() {
-    parameters = new TapParameters(this);
-  }
 
   public boolean isNoConnect(int index) {
     if (index == 0)
@@ -54,7 +49,6 @@ public class TapAttributes extends AbstractAttributeSet {
   @Override
   protected void copyInto(AbstractAttributeSet destObj) {
     final var dest = (TapAttributes) destObj;
-    dest.parameters = this.parameters;
     dest.attrs = new ArrayList<>(this.attrs.size());
     dest.attrs.addAll(INIT_ATTRIBUTES);
 
@@ -72,11 +66,6 @@ public class TapAttributes extends AbstractAttributeSet {
   /*Attribute<?> getBitOutAttribute(int index) {
     return attrs.get(INIT_ATTRIBUTES.size() + index);
   }*/
-
-  public TapParameters getParameters() {
-    if (parameters == null) parameters = new TapParameters(this);
-    return parameters;
-  }
 
   @Override
   @SuppressWarnings("unchecked")
@@ -100,7 +89,6 @@ public class TapAttributes extends AbstractAttributeSet {
       final var newFacing = (Direction) value;
       if (facing.equals(newFacing)) return;
       facing = (Direction) value;
-      parameters = null;
     } else if (attr == ATTR_WIDTH) {
       final var newWidth = (BitWidth) value;
       if (newWidth.getWidth() == width) return;

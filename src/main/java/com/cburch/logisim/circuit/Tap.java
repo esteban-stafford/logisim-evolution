@@ -52,9 +52,13 @@ public class Tap extends Splitter {
     attrs.addAttributeListener(this);
   }
 
+  @Override
+  public void attributeValueChanged(AttributeEvent e) {
+    configureComponent();
+  }
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
-    final var parms = attrs.getParameters();
+    final var width = 20;
 
     bitEnd = new byte[attrs.width];
     for (int i = 0; i < bitEnd.length; i++) {
@@ -73,7 +77,7 @@ public class Tap extends Splitter {
     final var ends = new EndData[2];
     final var origin = getLocation();
     ends[0] = new EndData(origin, BitWidth.create(attrs.width), EndData.INPUT_OUTPUT);
-    var x = origin.getX() + parms.getEnd0X();
+    var x = origin.getX() + width;
     var y = origin.getY();
     ends[1] = new EndData(Location.create(x, y, true), BitWidth.create(attrs.to-attrs.from+1), EndData.INPUT_OUTPUT);
     wireData = new CircuitWires.SplitterData(1);

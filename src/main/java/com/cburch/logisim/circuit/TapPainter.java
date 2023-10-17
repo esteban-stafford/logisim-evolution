@@ -18,31 +18,13 @@ import java.awt.Graphics2D;
 
 class TapPainter {
   static void drawLabels(ComponentDrawContext context, TapAttributes attrs, Location origin) {
+    final var width = 20;
     final var g = context.getGraphics().create();
     final var font = g.getFont();
     g.setFont(font.deriveFont(7.0f));
-
-    final var parms = attrs.getParameters();
-    int x = origin.getX() + parms.getEnd0X() + parms.getEndToSpineDeltaX();
-    int y = origin.getY() + parms.getEnd0Y() + parms.getEndToSpineDeltaY();
-    int dx = parms.getEndToEndDeltaX();
-    int dy = parms.getEndToEndDeltaY();
-    if (parms.getTextAngle() != 0) {
-      ((Graphics2D) g).rotate(Math.PI / 2.0);
-      int t;
-      t = -x;
-      x = y;
-      y = t;
-      t = -dx;
-      dx = dy;
-      dy = t;
-    }
-    final var halign = parms.getTextHorzAlign();
-    final var valign = parms.getTextVertAlign();
-    x += (halign == GraphicsUtil.H_RIGHT ? -1 : 1) * (SPINE_WIDTH / 2 + 1);
-    y += valign == GraphicsUtil.V_TOP ? 0 : -3;
-    GraphicsUtil.drawText(g, attrs.from +"-"+ attrs.to, x, y, halign, valign);
-
+    int x = origin.getX();
+    int y = origin.getY();
+    GraphicsUtil.drawText(g, attrs.from +"-"+ attrs.to, x + width, y - 2*Wire.WIDTH, GraphicsUtil.H_RIGHT, GraphicsUtil.V_BASELINE);
     g.dispose();
   }
 
@@ -51,75 +33,17 @@ class TapPainter {
   }
 
   static void drawLines(ComponentDrawContext context, TapAttributes attrs, Location origin) {
-    var showState = context.getShowState();
-    final var state = showState ? context.getCircuitState() : null;
-    if (state == null) showState = false;
-
-    final var parms = attrs.getParameters();
+    final var width = 20;
     final var x0 = origin.getX();
     final var y0 = origin.getY();
-    var x = x0 + parms.getEnd0X();
-    var y = y0 + parms.getEnd0Y();
-    var dx = parms.getEndToEndDeltaX();
-    var dy = parms.getEndToEndDeltaY();
-    final var dxEndSpine = parms.getEndToSpineDeltaX();
-    final var dyEndSpine = parms.getEndToSpineDeltaY();
 
     final var g = context.getGraphics();
-    final var oldColor = g.getColor();
     GraphicsUtil.switchToWidth(g, Wire.WIDTH);
-    /*for (int i = 0, n = attrs.fanout; i < n; i++) {
-      if (showState) {
-        final var val = state.getValue(Location.create(x, y, true));
-        g.setColor(val.getColor());
-      }
-      g.drawLine(x, y, x + dxEndSpine, y + dyEndSpine);
-      x += dx;
-      y += dy;
-    } */
-    GraphicsUtil.switchToWidth(g, SPINE_WIDTH);
-    g.setColor(Value.multiColor);
-    var spine0x = x0 + parms.getSpine0X();
-    var spine0y = y0 + parms.getSpine0Y();
-    var spine1x = x0 + parms.getSpine1X();
-    var spine1y = y0 + parms.getSpine1Y();
-    if (spine0x == spine1x && spine0y == spine1y) { // centered
-      final var fanout = 2;
-      spine0x = x0 + parms.getEnd0X() + parms.getEndToSpineDeltaX();
-      spine0y = y0 + parms.getEnd0Y() + parms.getEndToSpineDeltaY();
-      spine1x = spine0x + (fanout - 1) * parms.getEndToEndDeltaX();
-      spine1y = spine0y + (fanout - 1) * parms.getEndToEndDeltaY();
-      if (parms.getEndToEndDeltaX() == 0) { // vertical spine
-        if (spine0y < spine1y) {
-          spine0y++;
-          spine1y--;
-        } else {
-          spine0y--;
-          spine1y++;
-        }
-        g.drawLine(x0 + parms.getSpine1X() / 4, y0, spine0x, y0);
-      } else {
-        if (spine0x < spine1x) {
-          spine0x++;
-          spine1x--;
-        } else {
-          spine0x--;
-          spine1x++;
-        }
-        g.drawLine(x0, y0 + parms.getSpine1Y() / 4, x0, spine0y);
-      }
-      if (fanout <= 1) { // spine is empty
-        int diam = SPINE_DOT;
-        g.fillOval(spine0x - diam / 2, spine0y - diam / 2, diam, diam);
-      } else {
-        g.drawLine(spine0x, spine0y, spine1x, spine1y);
-      }
-    } else {
-      int[] xSpine = {spine0x, spine1x, x0 + parms.getSpine1X() / 4};
-      int[] ySpine = {spine0y, spine1y, y0 + parms.getSpine1Y() / 4};
-      g.drawPolyline(xSpine, ySpine, 3);
-    }
-    g.setColor(oldColor);
+    g.drawLine(x0, y0, x0 + width, y0);
+
+    int[] xTap = {x0, x0, x0 + width / 2, x0 };
+    int[] yTap = {y0 - width / 2, y0 + width / 2, y0, y0 - width / 2 };
+    g.fillPolygon(xTap, yTap, 4);
   }
 
   private static final int SPINE_WIDTH = Wire.WIDTH + 2;
