@@ -18,6 +18,7 @@ import com.cburch.logisim.comp.ComponentDrawContext;
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Location;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.tools.key.BitWidthConfigurator;
@@ -60,43 +61,10 @@ public class TapFactory extends AbstractComponentFactory {
     TapPainter.drawLines(context, attrs, loc);
   }
 
-  /*@Override
-  public Object getDefaultAttributeValue(Attribute<?> attr, LogisimVersion ver) {
-    if (attr == TapAttributes.ATTR_APPEARANCE) {
-      if (ver.compareTo(new LogisimVersion(2, 6, 4)) < 0) {
-        return TapAttributes.APPEAR_LEGACY;
-      } else {
-        return TapAttributes.APPEAR_LEFT;
-      }
-    } else if (attr instanceof TapAttributes.BitOutAttribute bitOutAttr) {
-      return bitOutAttr.getDefault();
-    } else {
-      return super.getDefaultAttributeValue(attr, ver);
-    }
-  } */
-
   @Override
   public StringGetter getDisplayGetter() {
     return S.getter("tapComponent");
   }
-
-  /*
-  @Override
-  public Object getFeature(Object key, AttributeSet attrs) {
-    if (key == FACING_ATTRIBUTE_KEY) {
-      return StdAttr.FACING;
-    } else if (key == KeyConfigurator.class) {
-      KeyConfigurator altConfig =
-          ParallelConfigurator.create(
-              new BitWidthConfigurator(TapAttributes.ATTR_WIDTH),
-              new IntegerConfigurator(
-                  TapAttributes.ATTR_FANOUT, 1, 64, InputEvent.ALT_DOWN_MASK));
-      return JoinedConfigurator.create(
-          new IntegerConfigurator(TapAttributes.ATTR_FANOUT, 1, 64, 0), altConfig);
-    }
-    return super.getFeature(key, attrs);
-  }
-  */
 
   @Override
   public String getName() {
@@ -105,8 +73,26 @@ public class TapFactory extends AbstractComponentFactory {
 
   @Override
   public Bounds getOffsetBounds(AttributeSet attrsBase) {
-    final var width = 20;
-    return Bounds.create(0, -width/2, width, width);
+    final var attrs = (TapAttributes) attrsBase;
+    final var size = attrs.size;
+    int xv = 0;
+    int yv = 0;
+    if( attrs.facing == Direction.EAST ) {
+       xv = size;
+    } else if( attrs.facing == Direction.WEST ) {
+       xv = -size;
+    } else if( attrs.facing == Direction.NORTH ) {
+       yv = -size;
+    } else if( attrs.facing == Direction.SOUTH ) {
+       yv = size;
+    }
+    int xp = yv;
+    int yp = -xv;
+
+    var bds = Bounds.create(0, 0, 1, 1);
+    bds = bds.add(0-xp/2, -yp/2);
+    bds = bds.add(xv+xp/2, yp/2+yv);
+    return bds;
   }
 
   @Override

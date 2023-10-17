@@ -18,13 +18,34 @@ import java.awt.Graphics2D;
 
 class TapPainter {
   static void drawLabels(ComponentDrawContext context, TapAttributes attrs, Location origin) {
-    final var width = 20;
+    final var size = attrs.size;
     final var g = context.getGraphics().create();
     final var font = g.getFont();
     g.setFont(font.deriveFont(7.0f));
     int x = origin.getX();
     int y = origin.getY();
-    GraphicsUtil.drawText(g, attrs.from +"-"+ attrs.to, x + width, y - 2*Wire.WIDTH, GraphicsUtil.H_RIGHT, GraphicsUtil.V_BASELINE);
+    int xv = 0;
+    int yv = 0;
+    int xp = 0;
+    int yp = 0;
+    var hAlign = GraphicsUtil.H_LEFT;
+    var vAlign = GraphicsUtil.V_BASELINE;
+    if( attrs.facing == Direction.EAST ) {
+       xv = 1;
+       yp = -1;
+    } else if( attrs.facing == Direction.WEST ) {
+       hAlign = GraphicsUtil.H_RIGHT;
+       xv = -1;
+       yp = -1;
+    } else if( attrs.facing == Direction.NORTH ) {
+       yv = -1;
+       xp = -1;
+    } else if( attrs.facing == Direction.SOUTH ) {
+       yv = 1;
+       xp = -1;
+       vAlign = GraphicsUtil.V_TOP;
+    }
+    GraphicsUtil.drawText(g, attrs.from +"-"+ attrs.to, x + xv*size/2 -2*Wire.WIDTH*xp, y + yv*size/2 + 2*Wire.WIDTH*yp, hAlign, vAlign);
     g.dispose();
   }
 
@@ -33,20 +54,33 @@ class TapPainter {
   }
 
   static void drawLines(ComponentDrawContext context, TapAttributes attrs, Location origin) {
-    final var width = 20;
+    final var size = attrs.size;
     final var x0 = origin.getX();
     final var y0 = origin.getY();
 
     final var g = context.getGraphics();
-    GraphicsUtil.switchToWidth(g, Wire.WIDTH);
-    g.drawLine(x0, y0, x0 + width, y0);
+    if(attrs.to - attrs.from > 0) {
+      GraphicsUtil.switchToWidth(g, Wire.WIDTH_BUS);
+    } else {
+      GraphicsUtil.switchToWidth(g, Wire.WIDTH);
+    }
 
-    int[] xTap = {x0, x0, x0 + width / 2, x0 };
-    int[] yTap = {y0 - width / 2, y0 + width / 2, y0, y0 - width / 2 };
+    int xv = 0;
+    int yv = 0;
+    if( attrs.facing == Direction.EAST ) {
+       xv = size;
+    } else if( attrs.facing == Direction.WEST ) {
+       xv = -size;
+    } else if( attrs.facing == Direction.NORTH ) {
+       yv = -size;
+    } else if( attrs.facing == Direction.SOUTH ) {
+       yv = size;
+    }
+    int xp = yv;
+    int yp = -xv;
+    g.drawLine(x0, y0, x0 + xv, y0 + yv);
+    int[] xTap = {x0 - xp/2, x0 + xp/2, x0 + xv/2, x0 - xp/2 };
+    int[] yTap = {y0 - yp/2, y0 + yp/2, y0 + yv/2, y0 - yp/2 };
     g.fillPolygon(xTap, yTap, 4);
   }
-
-  private static final int SPINE_WIDTH = Wire.WIDTH + 2;
-
-  private static final int SPINE_DOT = Wire.WIDTH + 4;
 }

@@ -39,6 +39,7 @@ public class TapAttributes extends AbstractAttributeSet {
   int from = 0;
   int to = 0;
   int width = 1;
+  final int size = 20;
 
   public boolean isNoConnect(int index) {
     if (index == 0)

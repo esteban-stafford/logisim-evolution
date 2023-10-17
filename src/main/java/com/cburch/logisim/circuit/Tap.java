@@ -58,7 +58,7 @@ public class Tap extends Splitter {
   }
   private synchronized void configureComponent() {
     final var attrs = (TapAttributes) getAttributeSet();
-    final var width = 20;
+    final var size = attrs.size;
 
     bitEnd = new byte[attrs.width];
     for (int i = 0; i < bitEnd.length; i++) {
@@ -73,12 +73,22 @@ public class Tap extends Splitter {
       bitThread[i] = (byte) (i >= attrs.from && i <= attrs.to ? j++ : -1);
     }
 
+
     // compute end positions
     final var ends = new EndData[2];
     final var origin = getLocation();
     ends[0] = new EndData(origin, BitWidth.create(attrs.width), EndData.INPUT_OUTPUT);
-    var x = origin.getX() + width;
+    var x = origin.getX();
     var y = origin.getY();
+    if( attrs.facing == Direction.EAST ) {
+       x += size;
+    } else if( attrs.facing == Direction.WEST ) {
+       x += -size;
+    } else if( attrs.facing == Direction.NORTH ) {
+       y += -size;
+    } else if( attrs.facing == Direction.SOUTH ) {
+       y += size;
+    }
     ends[1] = new EndData(Location.create(x, y, true), BitWidth.create(attrs.to-attrs.from+1), EndData.INPUT_OUTPUT);
     wireData = new CircuitWires.SplitterData(1);
 
