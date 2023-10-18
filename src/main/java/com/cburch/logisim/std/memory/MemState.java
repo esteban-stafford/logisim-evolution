@@ -53,7 +53,7 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
     final var dataBits = contents.getWidth();
     final var font = g.getFont();
     final var fm = g.getFontMetrics(font);
-    addrBlockSize = ((fm.stringWidth(StringUtil.toHexString(addrBits, 0)) + 9) / 10) * 10;
+    addrBlockSize = Math.min(52,((fm.stringWidth(StringUtil.toHexString(addrBits, 0)) + 9) / 10) * 10);
     dataSize = fm.stringWidth(StringUtil.toHexString(dataBits, 0) + " ");
     spaceSize = fm.stringWidth(" ");
     nrDataSymbolsEachLine = (DisplayWidth - addrBlockSize) / dataSize;
@@ -64,14 +64,14 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
             / (fm.getHeight() + 2); // (dataBits == 1) ? 1 : TotalHeight / (fm.getHeight() + 2);
     if (NrOfLines == 0) NrOfLines = 1;
     var totalShowableEntries = nrDataSymbolsEachLine * NrOfLines;
-    final var totalNrOfEntries = (1 << addrBits);
+    final var totalNrOfEntries = (1L << addrBits);
     while (totalShowableEntries > (totalNrOfEntries + nrDataSymbolsEachLine - 1)) {
       NrOfLines--;
       totalShowableEntries -= nrDataSymbolsEachLine;
     }
     if (NrOfLines == 0) {
       NrOfLines = 1;
-      nrDataSymbolsEachLine = totalNrOfEntries;
+      nrDataSymbolsEachLine =  (int) (totalNrOfEntries);
     }
     /* here we calculate to total x-sizes */
     dataBlockSize = nrDataSymbolsEachLine * (dataSize);
@@ -210,7 +210,7 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
     if (recalculateParameters || windowChanged(offsetX, offsetY, displayWidth, displayHeight))
       calculateDisplayParameters(g, offsetX, offsetY, displayWidth, displayHeight);
     final var blockHeight = NrOfLines * (CharHeight + 2);
-    final var totalNrOfEntries = (1 << getAddrBits());
+    final var totalNrOfEntries = (1L << getAddrBits());
     g.setColor(Color.LIGHT_GRAY);
     g.fillRect(leftX + xOffset, topY + yOffset, dataBlockSize + addrBlockSize, blockHeight);
     g.setColor(Color.DARK_GRAY);
@@ -219,10 +219,10 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
     /* draw the addresses */
     int addr = (int) curScroll;
     if ((addr + (NrOfLines * nrDataSymbolsEachLine)) > totalNrOfEntries) {
-      addr = totalNrOfEntries - (NrOfLines * nrDataSymbolsEachLine);
+      addr = (int) totalNrOfEntries - (NrOfLines * nrDataSymbolsEachLine);
       if (addr < 0) addr = 0;
       curScroll = addr;
-    }
+    } 
     /* draw the contents */
     int firsty = topY + getFirstYoffset();
     int yinc = getDataBlockHeight();
@@ -231,11 +231,14 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
       /* Draw address */
       GraphicsUtil.drawText(
           g,
-          StringUtil.toHexString(getAddrBits(), addr),
+          StringUtil.tailString(
+             StringUtil.toHexString(getAddrBits(), addr),
+             g.getFontMetrics(),
+             50),
           leftX + xOffset + (addrBlockSize / 2),
           firsty + i * (yinc),
           GraphicsUtil.H_CENTER,
-          GraphicsUtil.V_CENTER);
+          GraphicsUtil.V_CENTER); 
       /* Draw data */
       for (var j = 0; j < nrDataSymbolsEachLine; j++) {
         long value = contents.get(addr + j);

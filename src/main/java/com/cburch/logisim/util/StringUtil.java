@@ -50,6 +50,23 @@ public final class StringUtil {
     return resizeString(value.delete(value.length() - 3, value.length() - 2), metrics, maxWidth);
   }
 
+  public static String tailString(String value, FontMetrics metrics, int maxWidth) {
+    final var width = metrics.stringWidth(value);
+
+    if (width < maxWidth) return value;
+    if (value.length() < 4) return value;
+    return tailString(
+        new StringBuilder(".." + value.substring(3)), metrics, maxWidth);
+  }
+
+  private static String tailString(StringBuilder value, FontMetrics metrics, int maxWidth) {
+    final var width = metrics.stringWidth(value.toString());
+
+    if (width < maxWidth) return value.toString();
+    if (value.length() < 4) return value.toString();
+    return tailString(value.delete(2, 3), metrics, maxWidth);
+  }
+
   public static String toHexString(int bits, long value) {
     if (bits < 64) value &= (1L << bits) - 1;
     final var len = (bits + 3) / 4;
