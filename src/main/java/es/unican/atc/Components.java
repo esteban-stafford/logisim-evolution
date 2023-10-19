@@ -15,7 +15,6 @@ public class Components extends Library {
                 new AddTool(new RegisterFile16()),
                 new AddTool(new RegisterFile32()),
                 new AddTool(new ALU()),
-                new AddTool(new Ram()),
         });
     }
 

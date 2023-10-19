@@ -63,20 +63,20 @@ class RegisterFile16 extends InstanceFactory {
          Value we3 = state.getPortValue(7);
 
          if (clr == Value.TRUE) {
-            System.out.println("CLR");
+            // System.out.println("CLR");
             data.reset(Value.createKnown(32, 0));
          }
          else {
             if(we3 == Value.TRUE && a3 >= 0) {
-               System.out.println("WR3");
+               // System.out.println("WR3");
                data.regs[a3] = wr3;
             }
             data.regs[15] = r15;
          }
       }
-      for (int i = 0; i < 16; i++) {
+      /* for (int i = 0; i < 16; i++) {
          System.out.println("R"+i+" = "+data.regs[i]);
-      }
+      } */
 
       int a1 = (int)state.getPortValue(0).toLongValue();
       int a2 = (int)state.getPortValue(1).toLongValue();
