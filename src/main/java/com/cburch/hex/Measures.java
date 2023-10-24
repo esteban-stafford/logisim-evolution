@@ -89,7 +89,7 @@ class Measures {
       final var addr0 = getBaseAddress(model);
       final var addr1 = model.getLastOffset();
       final var rows = (int) (((addr1 - addr0 + 1) + cols - 1) / cols);
-      height = rows * cellHeight;
+      height = (long)rows * cellHeight;
       if (height > Integer.MAX_VALUE) height = Integer.MAX_VALUE;
     }
 
