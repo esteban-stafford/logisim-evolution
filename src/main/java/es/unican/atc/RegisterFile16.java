@@ -53,7 +53,7 @@ class RegisterFile16 extends InstanceFactory {
       ports[R15] = new Port(-DEVICE_WIDTH/2, -DEVICE_HEIGHT/2 +100, Port.INPUT, REGISTER_WIDTH);
 
       ports[CLK] = new Port(-DEVICE_WIDTH/2 +50, DEVICE_HEIGHT/2, Port.INPUT, 1);
-      ports[CLR] = new Port(-DEVICE_WIDTH/2 +30, -DEVICE_HEIGHT/2, Port.INPUT, 1);
+      ports[CLR] = new Port(-DEVICE_WIDTH/2 +30, DEVICE_HEIGHT/2, Port.INPUT, 1);
       ports[WE3] = new Port(-DEVICE_WIDTH/2 +60, -DEVICE_HEIGHT/2, Port.INPUT, 1);
 
       ports[RD1] = new Port(DEVICE_WIDTH/2, -DEVICE_HEIGHT/2 +20, Port.OUTPUT, REGISTER_WIDTH);
@@ -69,24 +69,21 @@ class RegisterFile16 extends InstanceFactory {
       AttributeOption triggerType = state.getAttributeValue(StdAttr.TRIGGER);
       BitWidth WIDTH = BitWidth.create(32);
 
+      if (state.getPortValue(CLR) == Value.TRUE) {
+         // System.out.println("CLR");
+         data.reset(Value.createKnown(32, 0));
+      }
       if (data.updateClock(state.getPortValue(CLK), triggerType)) {
          int a3 = (int)state.getPortValue(A3).toLongValue();
          Value wr3 = state.getPortValue(WD3);
          Value r15 = state.getPortValue(R15);
-         Value clr = state.getPortValue(CLR);
          Value we3 = state.getPortValue(WE3);
 
-         if (clr == Value.TRUE) {
-            // System.out.println("CLR");
-            data.reset(Value.createKnown(32, 0));
+         if(we3 == Value.TRUE && a3 >= 0) {
+            // System.out.println("WR3");
+            data.regs[a3] = wr3;
          }
-         else {
-            if(we3 == Value.TRUE && a3 >= 0) {
-               // System.out.println("WR3");
-               data.regs[a3] = wr3;
-            }
-            data.regs[15] = r15;
-         }
+         data.regs[15] = r15;
       }
       /* for (int i = 0; i < 16; i++) {
          System.out.println("R"+i+" = "+data.regs[i]);
@@ -110,7 +107,7 @@ class RegisterFile16 extends InstanceFactory {
       painter.drawPort(R15, "R15", Direction.EAST);
 
       painter.drawClock(CLK, Direction.NORTH);
-      painter.drawPort(CLR, "CLR", Direction.NORTH);
+      painter.drawPort(CLR, "CLR", Direction.SOUTH);
       painter.drawPort(WE3, "WE3", Direction.NORTH);
 
       painter.drawPort(RD1, "RD1", Direction.WEST);
