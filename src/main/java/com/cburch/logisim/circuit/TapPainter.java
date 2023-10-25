@@ -45,7 +45,11 @@ class TapPainter {
        xp = -1;
        vAlign = GraphicsUtil.V_TOP;
     }
-    GraphicsUtil.drawText(g, attrs.to +":"+ attrs.from, x + xv*size/2 -2*Wire.WIDTH*xp, y + yv*size/2 + 2*Wire.WIDTH*yp, hAlign, vAlign);
+    if( attrs.to == attrs.from ) {
+       GraphicsUtil.drawText(g, Integer.toString(attrs.from), x + xv*size/2 -2*Wire.WIDTH*xp, y + yv*size/2 + 2*Wire.WIDTH*yp, hAlign, vAlign);
+    } else {
+       GraphicsUtil.drawText(g, attrs.to +":"+ attrs.from, x + xv*size/2 -2*Wire.WIDTH*xp, y + yv*size/2 + 2*Wire.WIDTH*yp, hAlign, vAlign);
+    }
     g.dispose();
   }
 
