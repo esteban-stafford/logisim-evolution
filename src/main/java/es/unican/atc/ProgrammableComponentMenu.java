@@ -84,7 +84,7 @@ class ProgrammableComponentMenu implements ActionListener, MenuExtender {
   private void doEdit() {
     //if (factory.getState(instance, circState) == null) return;
     System.out.println("222222222\n");
-    final var frame = factory.getHexFrame(proj, instance, circState);
+    final var frame = factory.getBehaviorFrame(proj, instance, circState);
     frame.setVisible(true);
     frame.toFront();
   }

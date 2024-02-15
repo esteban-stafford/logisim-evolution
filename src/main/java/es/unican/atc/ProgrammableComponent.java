@@ -38,14 +38,14 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-public class ProgrammableComponent extends InstanceFactory implements HexModel
+public class ProgrammableComponent extends InstanceFactory
 {
     private JavaCompiler compiler; // Java compiler
     private Behavior behavior;     // Behavior of the component
     private HashMap<String, Integer> portNameToId; // Map from port names to port ids
     private EventSourceWeakSupport<HexModelListener> listeners = null;
 
-    private static final WeakHashMap<ProgrammableComponent, HexFrame> windowRegistry = new WeakHashMap<>();
+    private static final WeakHashMap<ProgrammableComponent, BehaviorFrame> windowRegistry = new WeakHashMap<>();
 
     private static String behaviorClassImplementationHeader = "package es.unican.atc;\n\n" +
         "import java.util.HashMap;\n" +
@@ -166,102 +166,40 @@ public class ProgrammableComponent extends InstanceFactory implements HexModel
         return behavior;
     }
 
-    public void setBehavior(Behavior b) {
-        behavior=b;
-    }
-
-
-    private Behavior getNewBehavior(AttributeSet attrs) {
-        //TODO: THIS NEEDS TO DO SOMETHING DIFFERENT
-        return behavior;
-    }
-
-     private static HexFrame getHexFrame(ProgrammableComponent p, Project proj, Instance instance) {
+     private static BehaviorFrame getBehaviorFrame(ProgrammableComponent p, Project proj, Instance instance) {
         synchronized (windowRegistry) {
             System.out.println("Sincronizado");
-            var ret = windowRegistry.get(p.getBehavior().getAsString());
+            BehaviorFrame ret = windowRegistry.get(p.getBehavior().getAsString());
             if (ret == null) {
                 System.out.println("En if");
-                ret = new HexFrame(proj, instance, p);
+                ret = new BehaviorFrame(proj, instance, p);
                 windowRegistry.put(p, ret);
             }
             return ret;
         }
     }
 
-    public HexFrame getHexFrame(Project proj, Instance instance, CircuitState circState) {
+    public BehaviorFrame getBehaviorFrame(Project proj, Instance instance, CircuitState circState) {
         System.out.println("getHexFrame\n");
-        return getHexFrame(this, proj, instance);
+        return getBehaviorFrame(this, proj, instance);
     }
 
-
-    @Override
     public void addHexModelListener(HexModelListener l) {
         if (listeners == null) listeners = new EventSourceWeakSupport<>();
         listeners.add(l);
     }
 
-
-    @Override
-    public void fill(long start, long length, long value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'fill'");
-    }
-
-
-    @Override
-    public long get(long address) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
-    }
-
-
-    @Override
-    public long getFirstOffset() {
-        // Por ejemplo
-        return 0;
-    }
-
-
-    @Override
-    public long getLastOffset() {
-        // Por ejemplo
-        return 32;
-    }
-
-
-    @Override
-    public int getValueWidth() {
-        // Por ejemplo
-        return 4;
-    }
-
-
-    @Override
-    public void removeHexModelListener(HexModelListener l) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeHexModelListener'");
-    }
-
-
-    @Override
-    public void set(long address, long value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-
-    @Override
-    public void set(long start, long[] values) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
     protected Object getInstanceFeature(Instance instance, Object key) {
     return (key == MenuExtender.class)
         ? new ProgrammableComponentMenu(this, instance)
         : super.getInstanceFeature(instance, key);
     }   
+
+    public boolean newBehavior(String s)
+    {  
+        System.out.println("Nueva implementacion!!!");
+        System.out.println(s);
+        return true;
+    }
 
 }
