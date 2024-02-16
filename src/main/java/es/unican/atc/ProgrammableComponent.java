@@ -25,6 +25,8 @@ import static com.cburch.logisim.std.Strings.S;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,24 +46,32 @@ public class ProgrammableComponent extends InstanceFactory
     private Behavior behavior;     // Behavior of the component
     private HashMap<String, Integer> portNameToId; // Map from port names to port ids
     private EventSourceWeakSupport<HexModelListener> listeners = null;
-
+    private static long behaviorCounter = 0;
     private static final WeakHashMap<ProgrammableComponent, BehaviorFrame> windowRegistry = new WeakHashMap<>();
 
-    private static String behaviorClassImplementationHeader = "package es.unican.atc;\n\n" +
+    private static String behaviorClassImplementationHeaderTemplate = "package es.unican.atc;\n\n" +
         "import java.util.HashMap;\n" +
         "import com.cburch.logisim.instance.InstanceState;\n"+
         "import com.cburch.logisim.data.BitWidth;\n"+
         "import com.cburch.logisim.data.Value;\n"+
-        "public class ActualBehaviorXX implements Behavior{\n" +
-        "   public String getAsString(){return \"HOLA\";}\n"+
-        "   public void propagate(InstanceState state, HashMap<String, Integer> nameToId){\n" +
-        "       System.out.println(\"HEYY\");\n" +
-        "       long v = state.getPortValue(0).toLongValue();\n" +
-        "       Value out = Value.createKnown(BitWidth.create(32), v);\n"+
-        "       state.setPort(2, out, 32);\n" +
+        "\n"+
+        "public class ActualBehaviorXX implements Behavior{\n"+
+        "   private String behaviorBody;\n" + 
+        "\n"+
+        "   public String getAsString(){return behaviorBody;}\n"+
+        "   public ActualBehaviorXX(String behaviorBody){\n"+
+        "    this.behaviorBody=behaviorBody;\n"+
         "   }\n"+
-        "}";
+        "   public void propagate(InstanceState state, HashMap<String, Integer> nameToId){\n";
+        
+    
+    private static String behaviorClassImplementationBody="     System.out.println(\"HEYY\");\n" +
+    "       long v = state.getPortValue(0).toLongValue();\n" +
+    "       Value out = Value.createKnown(BitWidth.create(32), v);\n"+
+    "       state.setPort(2, out, 32);\n";
 
+    private static String behaviorClassImplementationTail= "    }\n"+
+        "}";
 
     protected ProgrammableComponent()
     {
@@ -81,70 +91,8 @@ public class ProgrammableComponent extends InstanceFactory
                  new Port(-width/2, -height/2 +33, Port.INPUT, 1),
                  new Port(-width/2, -height/2 +66, Port.INPUT, 1),
                  new Port(width/2, 0, Port.OUTPUT, 1),});
-        System.out.println("Construyendo\n");
-        File sourceFile=null;
-        try{
-            String fileName = "ActualBehaviorXX.java";
-            sourceFile = new File("./src/main/java/es/unican/atc/"+fileName);
-            Files.write(sourceFile.toPath(), behaviorClassImplementationHeader.getBytes());
-        } catch (Exception e) {
-                System.out.println("Cagada en fichero\n");
-                throw new RuntimeException("Error compiling class: " + e.getMessage());
-        }
 
-        /** Compilation Requirements *********************************************************************************************/
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-
-        // This sets up the class path that the compiler will use.
-        List<String> optionList = new ArrayList<String>();
-        //optionList.add("-classpath");
-        //optionList.add(System.getProperty("java.class.path") + File.pathSeparator + "dist/InlineCompiler.jar");
-
-        Iterable<? extends JavaFileObject> compilationUnit
-                = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
-        JavaCompiler.CompilationTask task = compiler.getTask(
-            null, 
-            fileManager, 
-            diagnostics, 
-            optionList, 
-            null, 
-            compilationUnit);
-        /********************************************************************************************* Compilation Requirements **/
-        if (task.call()) {
-            /** Load and execute *************************************************************************************************/
-            System.out.println("Yipe");
-            // Create a new custom class loader, pointing to the directory that contains the compiled
-            // classes, this should point to the top of the package structure!
-            //URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
-            ClassLoader classLoader = getClass().getClassLoader();
-            // Load the class from the classloader by name....
-
-            try{
-                Class<?> loadedClass=classLoader.loadClass("es.unican.atc.ActualBehaviorXX");
-                System.out.println("Cargado\n");
-                 Object obj = loadedClass.getDeclaredConstructor().newInstance();
-                // Santity check
-                if (obj instanceof Behavior) {
-                    // Cast to the DoStuff interface
-                    behavior = (Behavior)obj;
-                    System.out.println("Construido\n");
-                }
-            } catch (Exception e) {
-                System.out.println("Cagada en el path de la clase\n");
-                throw new RuntimeException("Error compiling class: " + e.getMessage());
-            }
-            
-           
-            /************************************************************************************************* Load and execute **/
-        } else {
-            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                System.out.format("Error on line %d in %s%n",
-                        diagnostic.getLineNumber(),
-                        diagnostic.getSource().toUri());
-            }
-        }
+        newBehavior(behaviorClassImplementationBody);
     }
     
 
@@ -164,6 +112,92 @@ public class ProgrammableComponent extends InstanceFactory
 
     public Behavior getBehavior(){
         return behavior;
+    }
+
+    public boolean newBehavior(String behaviorBody)
+    {
+        System.out.println("Construyendo\n");
+        String behaviorClassImplementationHeader=behaviorClassImplementationHeaderTemplate.replace("XX", Long.toString(behaviorCounter));
+        String newBehaviorClassName="ActualBehaviorXX".replace("XX", Long.toString(behaviorCounter));
+        File sourceFile=null;
+        try{
+            String fileName = newBehaviorClassName+".java";
+            sourceFile = new File("./src/main/java/es/unican/atc/"+fileName);
+            Files.write(sourceFile.toPath(), (behaviorClassImplementationHeader+behaviorClassImplementationBody+behaviorClassImplementationTail).getBytes());
+        } catch (Exception e) {
+                System.out.println("Cagada en fichero\n");
+                throw new RuntimeException("Error compiling class: " + e.getMessage());
+        }
+
+        /** Compilation Requirements *********************************************************************************************/
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
+        
+        // This sets up the class path that the compiler will use.
+        List<String> optionList = new ArrayList<String>();
+        //optionList.addAll(Arrays.asList("-d","../../../../../../../build/classes/java/main/es/unican/atc/"));
+
+        //optionList.add("-classpath");
+        //optionList.add(System.getProperty("java.class.path") + File.pathSeparator + "dist/InlineCompiler.jar");
+
+        Iterable<? extends JavaFileObject> compilationUnit
+                = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
+        JavaCompiler.CompilationTask task = compiler.getTask(
+            null, 
+            fileManager, 
+            diagnostics, 
+            optionList, 
+            null, 
+            compilationUnit);
+        /********************************************************************************************* Compilation Requirements **/
+        if (task.call()) {
+            
+            /** Load and execute *************************************************************************************************/
+            System.out.println("Yipe");
+            // Create a new custom class loader, pointing to the directory that contains the compiled
+            // classes, this should point to the top of the package structure!
+            //URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
+            ClassLoader classLoader = getClass().getClassLoader();
+            // Load the class from the classloader by name....
+
+            try{
+                System.out.println("./src/main/java/es/unican/atc/"+newBehaviorClassName+".class");
+                System.out.println("./build/classes/java/main/es/unican/atc/"+newBehaviorClassName+".class");
+                Files.move(Paths.get("./src/main/java/es/unican/atc/"+newBehaviorClassName+".class"), Paths.get("./build/classes/java/main/es/unican/atc/"+newBehaviorClassName+".class"), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println(newBehaviorClassName.split("\\.")[0]);
+                //Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName.split("\\.")[0]);
+                
+                Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName);
+                System.out.println("Cargado\n");
+                 Class[] cArg = new Class[1];
+                 cArg[0] = String.class;
+                 Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorClassImplementationBody);
+                // Santity check
+                if (obj instanceof Behavior) {
+                    System.out.println("Es comportamiento!!!!!!!!!!!!!!!!\n");
+                    System.out.println(((Behavior)obj).getAsString());
+                    // Cast to the DoStuff interface
+                    behavior = (Behavior)obj;
+                    System.out.println("Construido\n");
+                }
+            } catch (Exception e) {
+                System.out.println("Cagada en el path de la clase\n");
+                throw new RuntimeException("Error compiling class: " + e.getMessage());
+            }
+            
+           
+            /************************************************************************************************* Load and execute **/
+        } else {
+            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+                System.out.format("Error on line %d in %s%n",
+                        diagnostic.getLineNumber(),
+                        diagnostic.getSource().toUri());
+            }
+        }
+        behaviorCounter++;
+        return true;
     }
 
      private static BehaviorFrame getBehaviorFrame(ProgrammableComponent p, Project proj, Instance instance) {
@@ -194,12 +228,4 @@ public class ProgrammableComponent extends InstanceFactory
         ? new ProgrammableComponentMenu(this, instance)
         : super.getInstanceFeature(instance, key);
     }   
-
-    public boolean newBehavior(String s)
-    {  
-        System.out.println("Nueva implementacion!!!");
-        System.out.println(s);
-        return true;
-    }
-
 }
