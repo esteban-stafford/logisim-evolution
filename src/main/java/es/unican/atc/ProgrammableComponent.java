@@ -184,9 +184,10 @@ public class ProgrammableComponent extends InstanceFactory
                 }
             } catch (Exception e) {
                 System.out.println("Cagada en el path de la clase\n");
+                sourceFile.delete();
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
             }
-            
+            behaviorCounter++;
            
             /************************************************************************************************* Load and execute **/
         } else {
@@ -196,7 +197,6 @@ public class ProgrammableComponent extends InstanceFactory
                         diagnostic.getSource().toUri());
             }
         }
-        behaviorCounter++;
         return true;
     }
 
