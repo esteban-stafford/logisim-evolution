@@ -123,7 +123,7 @@ public class ProgrammableComponent extends InstanceFactory
         try{
             String fileName = newBehaviorClassName+".java";
             sourceFile = new File("./src/main/java/es/unican/atc/"+fileName);
-            Files.write(sourceFile.toPath(), (behaviorClassImplementationHeader+behaviorClassImplementationBody+behaviorClassImplementationTail).getBytes());
+            Files.write(sourceFile.toPath(), (behaviorClassImplementationHeader+behaviorBody+behaviorClassImplementationTail).getBytes());
         } catch (Exception e) {
                 System.out.println("Cagada en fichero\n");
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
@@ -173,7 +173,7 @@ public class ProgrammableComponent extends InstanceFactory
                 System.out.println("Cargado\n");
                  Class[] cArg = new Class[1];
                  cArg[0] = String.class;
-                 Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorClassImplementationBody);
+                 Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorBody);
                 // Santity check
                 if (obj instanceof Behavior) {
                     System.out.println("Es comportamiento!!!!!!!!!!!!!!!!\n");
