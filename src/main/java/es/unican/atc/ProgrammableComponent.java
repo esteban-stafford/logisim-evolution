@@ -188,14 +188,15 @@ public class ProgrammableComponent extends InstanceFactory
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
             }
             behaviorCounter++;
-           
+             
             /************************************************************************************************* Load and execute **/
         } else {
             for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                System.out.format("Error on line %d in %s%n",
-                        diagnostic.getLineNumber(),
-                        diagnostic.getSource().toUri());
+                System.out.format("Error on line %d of component behavior: %s%n",
+                        diagnostic.getLineNumber()-behaviorClassImplementationHeaderTemplate.split("\r\n|\r|\n").length,
+                        diagnostic.getMessage(null));
             }
+            sourceFile.delete();
         }
         return true;
     }
