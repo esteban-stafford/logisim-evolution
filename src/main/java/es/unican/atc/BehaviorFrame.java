@@ -171,7 +171,7 @@ public class BehaviorFrame extends LFrame.SubWindow {
         */
       if (src == save) {
         System.out.println("Guardado\n");
-        model.newBehavior(display.getText());
+        model.newBehavior(display.getText(), instance);
         //HexFile.save((MemContents) model, BehaviorFrame.this, project, instance);
       } else if (src == close) {
         WindowEvent e = new WindowEvent(BehaviorFrame.this, WindowEvent.WINDOW_CLOSING);
