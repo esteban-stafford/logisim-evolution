@@ -142,7 +142,7 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
 
     private JavaCompiler compiler; // Java compiler
     private Behavior behavior;     // Behavior of the component
-    private HashMap<String, Integer> portNameToId; // Map from port names to port ids
+    protected HashMap<String, Integer> portNameToId; // Map from port names to port ids
     private EventSourceWeakSupport<HexModelListener> listeners = null;
     private static long behaviorCounter = 0;
     private static final WeakHashMap<ProgrammableComponent, BehaviorFrame> windowRegistry = new WeakHashMap<>();
@@ -165,44 +165,32 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         "   public void propagate(InstanceState state, HashMap<String, Integer> nameToId){\n";
         
     
-    private static String behaviorClassImplementationBody="     System.out.println(\"HEY\");\n" +
-    "       long v = state.getPortValue(0).toLongValue();\n" +
-    "       Value out = Value.createKnown(BitWidth.create(32), v);\n"+
-    "       state.setPort(2, out, 32);\n";
+    private String behaviorClassImplementationBody="     System.out.println(\"HEY\");\n"; 
 
     private static String behaviorClassImplementationTail= "    }\n"+
         "}";
 
     Attribute<String> behaviorBodyAttr;
+    
+    public ProgrammableComponent(String name)
+    {
+        super(name);
+    }
 
     protected ProgrammableComponent()
     {
-        super("ProgrammableComponent");
-        int xp[], yp[];
-	    int width = 60;
-       	int height = 100;
-        Bounds bounds = Bounds.create(-width/2, -height/2, width, height);
-        setOffsetBounds(bounds);
-        int x0 = bounds.getX();
-        int x1 = x0 + bounds.getWidth();
-        int y0 = bounds.getY();
-        int y1 = y0 + bounds.getHeight();
-        xp = new int[] { x0, x1,               x1,               x0, x0,              x0 + width/3,  x0 };
-        yp = new int[] { y0, y0 + height*3/10, y1 - height*3/10, y1, y1 - height*2/5, y1 - height/2, y1 - height*3/5 };
-        setPorts(new Port[] {
-                 new Port(-width/2, -height/2 +33, Port.INPUT, 1),
-                 new Port(-width/2, -height/2 +66, Port.INPUT, 1),
-                 new Port(width/2, 0, Port.OUTPUT, 1),});
-
+      super("ProgrammableComponent");
     }
     
+    public ProgrammableComponent(String name, String b)
+    {
+        super(name);
+        behaviorClassImplementationBody=b;
+    }
 
     @Override
     public void paintInstance(InstancePainter painter) {
         painter.drawRectangle(painter.getBounds(), "");
-        painter.drawPort(0, "In1", Direction.EAST);
-        painter.drawPort(1, "In2", Direction.EAST);
-        painter.drawPort(2, "Out", Direction.WEST);
     }
 
     @Override
@@ -335,8 +323,14 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
   
     @Override
     protected void configureNewInstance(Instance instance) {
-        super.configureNewInstance(instance); 
-        newBehavior((String)instance.getAttributeSet().getValue(behaviorAttr), instance);
+        super.configureNewInstance(instance);
+        String b=(String)instance.getAttributeSet().getValue(behaviorAttr);
+        if(b==null)
+        {
+          b=behaviorClassImplementationBody;
+        }
+        newBehavior(b, instance);
         instance.addAttributeListener();
     }
+
 }
