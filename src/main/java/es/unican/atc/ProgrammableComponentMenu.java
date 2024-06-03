@@ -40,11 +40,9 @@ class ProgrammableComponentMenu implements ActionListener, MenuExtender {
 
   @Override
   public void actionPerformed(ActionEvent evt) {
-    System.out.println("JJJJJJJ\n");
     Object src = evt.getSource();
     if (src == edit)
     {
-      System.out.println("IIIIIII\n");
       doEdit();
     }
     else if (src == clear) doClear();
@@ -83,7 +81,6 @@ class ProgrammableComponentMenu implements ActionListener, MenuExtender {
 
   private void doEdit() {
     //if (factory.getState(instance, circState) == null) return;
-    System.out.println("222222222\n");
     final var frame = factory.getBehaviorFrame(proj, instance, circState);
     frame.setVisible(true);
     frame.toFront();

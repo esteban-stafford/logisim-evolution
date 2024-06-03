@@ -99,7 +99,6 @@ public class BehaviorFrame extends LFrame.SubWindow {
 
   public void closeAndDispose() {
     WindowEvent e = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-    System.out.println("Cerrando\n");
     processWindowEvent(e);
     dispose();
   }
@@ -170,7 +169,6 @@ public class BehaviorFrame extends LFrame.SubWindow {
         HexFile.open((MemContents) model, BehaviorFrame.this, project, instance);
         */
       if (src == save) {
-        System.out.println("Guardado\n");
         model.newBehavior(display.getText(), instance);
         //HexFile.save((MemContents) model, BehaviorFrame.this, project, instance);
       } else if (src == close) {

@@ -68,10 +68,8 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         @Override
         public <V> V getValue(Attribute<V> attr) {
             V ret=null;
-            System.out.println("getValue<<<: \n"+attr);
             if (attr == behaviorBodyAttr)
             {
-                System.out.println("getValue>>>: \n"+behavior);
                 ret=(V)behavior;
             }
             return ret;
@@ -84,10 +82,8 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         
         @Override
         public <V> void setValue(Attribute<V> attr, V value) {
-            System.out.println("LIADA");
             if (attr == behaviorBodyAttr) {
                 behavior=(String)value;
-                System.out.println("Setting attr "+attr+" to value "+behavior);
             }
         }
   
@@ -130,7 +126,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
             //final var addr = state.getLogLength();
             //final var data = state.getWidth();
             //final var contents = HexFile.saveToString(state);
-            System.out.println("toStandardString\n");
             return b;
         }
 
@@ -170,7 +165,7 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         "   public void propagate(InstanceState state, HashMap<String, Integer> nameToId){\n";
         
     
-    private static String behaviorClassImplementationBody="     System.out.println(\"HEYY\");\n" +
+    private static String behaviorClassImplementationBody="     System.out.println(\"HEY\");\n" +
     "       long v = state.getPortValue(0).toLongValue();\n" +
     "       Value out = Value.createKnown(BitWidth.create(32), v);\n"+
     "       state.setPort(2, out, 32);\n";
@@ -222,7 +217,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
 
     public boolean newBehavior(String behaviorBody, Instance instance)
     {
-        System.out.println("Construyendo\n");
         String behaviorClassImplementationHeader=behaviorClassImplementationHeaderTemplate.replace("XX", Long.toString(behaviorCounter));
         String newBehaviorClassName="ActualBehaviorXX".replace("XX", Long.toString(behaviorCounter));
         File sourceFile=null;
@@ -231,7 +225,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
             sourceFile = new File("./src/main/java/es/unican/atc/"+fileName);
             Files.write(sourceFile.toPath(), (behaviorClassImplementationHeader+behaviorBody+behaviorClassImplementationTail).getBytes());
         } catch (Exception e) {
-                System.out.println("Cagada en fichero\n");
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
         }
 
@@ -261,7 +254,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         if (task.call()) {
             
             /** Load and execute *************************************************************************************************/
-            System.out.println("Yipe");
             // Create a new custom class loader, pointing to the directory that contains the compiled
             // classes, this should point to the top of the package structure!
             //URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
@@ -269,27 +261,19 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
             // Load the class from the classloader by name....
 
             try{
-                System.out.println("./src/main/java/es/unican/atc/"+newBehaviorClassName+".class");
-                System.out.println("./build/classes/java/main/es/unican/atc/"+newBehaviorClassName+".class");
                 Files.move(Paths.get("./src/main/java/es/unican/atc/"+newBehaviorClassName+".class"), Paths.get("./build/classes/java/main/es/unican/atc/"+newBehaviorClassName+".class"), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println(newBehaviorClassName.split("\\.")[0]);
                 //Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName.split("\\.")[0]);
                 
                 Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName);
-                System.out.println("Cargado\n");
                  Class[] cArg = new Class[1];
                  cArg[0] = String.class;
                  Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorBody);
                 // Santity check
                 if (obj instanceof Behavior) {
-                    System.out.println("Es comportamiento!!!!!!!!!!!!!!!!\n");
-                    System.out.println(((Behavior)obj).getAsString());
                     // Cast to the DoStuff interface
                     behavior = (Behavior)obj;
-                    System.out.println("Construido\n");
                 }
             } catch (Exception e) {
-                System.out.println("Cagada en el path de la clase\n");
                 sourceFile.delete();
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
             }
@@ -297,8 +281,7 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
             
 
             if (attributes!=null) { //It may be null when the Behavior is first created
-                System.out.println("Setting value for component "+this);
-                instance.getAttributeSet().setValue((Attribute)behaviorAttr, behaviorBody);    
+                instance.getAttributeSet().setValue(behaviorAttr, behaviorBody);    
             }
             /************************************************************************************************* Load and execute **/
         } else {
@@ -314,10 +297,8 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
 
      private static BehaviorFrame getBehaviorFrame(ProgrammableComponent p, Project proj, Instance instance) {
         synchronized (windowRegistry) {
-            System.out.println("Sincronizado");
             BehaviorFrame ret = windowRegistry.get(p.getBehavior().getAsString());
             if (ret == null) {
-                System.out.println("En if");
                 ret = new BehaviorFrame(proj, instance, p);
                 windowRegistry.put(p, ret);
             }
@@ -326,7 +307,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
     }
 
     public BehaviorFrame getBehaviorFrame(Project proj, Instance instance, CircuitState circState) {
-        System.out.println("getHexFrame\n");
         return getBehaviorFrame(this, proj, instance);
     }
 
@@ -343,7 +323,6 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
 
     @Override
     public AttributeSet createAttributeSet() {
-        System.out.println("createAttributeSet!!!!!!!!\n");
         attributes = new BehaviorAttributes(behaviorAttr);
         //attributes.setValue(behaviorAttr, (Object)behavior.getAsString());
         attributes.addAttributeListener(this);
@@ -351,23 +330,13 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
     }
 
     @Override
-    public void attributeValueChanged(AttributeEvent e) {
-        System.out.println("------------------------------------>attributeValueChanged!!!!!\n");
-        AttributeSet attrs = e.getSource();
-        String b = attrs.getValue(behaviorAttr);
-        attrs.setValue((Attribute)behaviorAttr, behavior);    
-    }
-  
-    @Override
     protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     }
   
     @Override
     protected void configureNewInstance(Instance instance) {
         super.configureNewInstance(instance); 
-        System.out.println("2222222222222222222222222222>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        newBehavior((String)instance.getAttributeSet().getValue((Attribute)behaviorAttr), instance);
+        newBehavior((String)instance.getAttributeSet().getValue(behaviorAttr), instance);
         instance.addAttributeListener();
     }
 }
