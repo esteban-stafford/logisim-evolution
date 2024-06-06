@@ -1,6 +1,11 @@
 package es.unican.atc;
 
-import com.cburch.hex.HexModel;
+import com.cburch.logisim.data.Bounds;
+import com.cburch.logisim.data.Direction;
+import java.util.HashMap;
+import com.cburch.logisim.instance.Port;
+import com.cburch.logisim.instance.InstancePainter;
+/*import com.cburch.hex.HexModel;
 import com.cburch.hex.HexModelListener;
 import com.cburch.logisim.circuit.CircuitState;
 import com.cburch.logisim.data.AbstractAttributeSet;
@@ -9,17 +14,13 @@ import com.cburch.logisim.data.AttributeEvent;
 import com.cburch.logisim.data.AttributeListener;
 import com.cburch.logisim.data.AttributeSet;
 import com.cburch.logisim.data.BitWidth;
-import com.cburch.logisim.data.Bounds;
-import com.cburch.logisim.data.Direction;
 import com.cburch.logisim.data.Value;
 import com.cburch.logisim.gui.hex.HexFile;
 import com.cburch.logisim.gui.hex.HexFrame;
 import com.cburch.logisim.gui.main.Frame;
 import com.cburch.logisim.instance.Instance;
 import com.cburch.logisim.instance.InstanceFactory;
-import com.cburch.logisim.instance.InstancePainter;
 import com.cburch.logisim.instance.InstanceState;
-import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.proj.Project;
 import com.cburch.logisim.std.memory.Mem;
 import com.cburch.logisim.std.memory.MemContents;
@@ -38,7 +39,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -50,6 +50,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+*/
 
 public class ForwardingUnit extends ProgrammableComponent
 {
