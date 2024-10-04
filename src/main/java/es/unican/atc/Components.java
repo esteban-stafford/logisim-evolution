@@ -16,7 +16,8 @@ public class Components extends Library {
                 new AddTool(new RegisterFile32()),
                 new AddTool(new ALU()),
                 new AddTool(new ArmALU()),
-                new AddTool(new ProgrammableComponent()
+                new AddTool(new ProgrammableComponent()),
+                new AddTool(new ForwardingUnit()),
         });
     }
 
