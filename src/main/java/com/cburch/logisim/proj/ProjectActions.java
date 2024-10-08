@@ -369,11 +369,15 @@ public final class ProjectActions {
   {
     File directory = new File(folder);
     File[] files = directory.listFiles();
-    for (File f : files)
+    // Ensure files is not null
+    if (files != null)
     {
-      if (f.getName().startsWith("ActualBehavior"))
+      for (File f : files)
       {
-        f.delete();
+        if (f.getName().startsWith("ActualBehavior"))
+        {
+          f.delete();
+        }
       }
     }
   }
