@@ -10,26 +10,42 @@ public class RiscvMainDecoder extends ProgrammableComponent
 {
     private static String behaviorClassImplementationBody=
     "long Op = state.getPortValue(nameToId.get(\"Op\")).toLongValue();\n" +
+    "long RegWrite = 0, ImmSrc = 0, ALUSrc = 0, MemWrite = 0, ResultSrc = 0, Branch = 0, ALUOp = 0, O1 = 0;\n" +
     "\n" +
-    "long Branch = 0, ResultSrc = 0, MemWrite = 0, ALUSrc = 0, ImmSrc = 0, RegWrite = 0, ALUOp = 0, O1 = 0;\n" +
+    "if(Op == 0x3) { // lw\n" +
+    "    RegWrite = 1;\n" +
+    "    ALUSrc = 1;\n" +
+    "    ResultSrc = 0x2;\n" +
+    "} else if(Op == 0x23) { // sw\n" +
+    "    ImmSrc = 0x1;\n" +
+    "    ALUSrc = 1;\n" +
+    "    MemWrite = 1;\n" +
+    "} else if(Op == 0x33) { // R-type\n" +
+    "    RegWrite = 1;\n" +
+    "    ResultSrc = 0x1;\n" +
+    "    ALUOp = 0x2;\n" +
+    "} else if(Op == 0x63) { // beq\n" +
+    "    ImmSrc = 0x2;\n" +
+    "    Branch = 1;\n" +
+    "    ALUOp = 0x1;\n" +
+    "}\n" +
     "\n" +
-    "\n" +
-    "Value p_Branch = Value.createKnown(BitWidth.create(1), 0);\n"+
-    "state.setPort(nameToId.get(\"Branch\"), p_Branch, 1);\n" +
-    "Value p_ResultSrc = Value.createKnown(BitWidth.create(1), 0);\n" +
-    "state.setPort(nameToId.get(\"ResultSrc\"), p_ResultSrc, 1);\n" +
-    "Value p_MemWrite = Value.createKnown(BitWidth.create(1), 0);\n" +
-    "state.setPort(nameToId.get(\"MemWrite\"), p_MemWrite, 1);\n" +
-    "Value p_ALUSrc = Value.createKnown(BitWidth.create(1), 0);\n" +
-    "state.setPort(nameToId.get(\"ALUSrc\"), p_ALUSrc, 1);\n" +
-    "Value p_ImmSrc = Value.createKnown(BitWidth.create(2), 0);\n" +
-    "state.setPort(nameToId.get(\"ImmSrc\"), p_ImmSrc, 2);\n" +
-    "Value p_RegWrite = Value.createKnown(BitWidth.create(1), 0);\n" +
-    "state.setPort(nameToId.get(\"RegWrite\"), p_RegWrite, 1);\n" +
-    "Value p_ALUOp = Value.createKnown(BitWidth.create(2), 0);\n" +
-    "state.setPort(nameToId.get(\"ALUOp\"), p_ALUOp, 2);\n" +
-    "Value p_O1 = Value.createKnown(BitWidth.create(1), 0);\n" +
-    "state.setPort(nameToId.get(\"O1\"), p_O1, 1); \n";
+    "Value branchVal = Value.createKnown(BitWidth.create(1), Branch);\n" +
+    "state.setPort(nameToId.get(\"Branch\"), branchVal, 1);\n" +
+    "Value resultSrcVal = Value.createKnown(BitWidth.create(2), ResultSrc);\n" +
+    "state.setPort(nameToId.get(\"ResultSrc\"), resultSrcVal, 2);\n" +
+    "Value memWriteVal = Value.createKnown(BitWidth.create(1), MemWrite);\n" +
+    "state.setPort(nameToId.get(\"MemWrite\"), memWriteVal, 1);\n" +
+    "Value aluSrcVal = Value.createKnown(BitWidth.create(1), ALUSrc);\n" +
+    "state.setPort(nameToId.get(\"ALUSrc\"), aluSrcVal, 1);\n" +
+    "Value regWriteVal = Value.createKnown(BitWidth.create(1), RegWrite);\n" +
+    "state.setPort(nameToId.get(\"RegWrite\"), regWriteVal, 1);\n" +
+    "Value immSrcVal = Value.createKnown(BitWidth.create(2), ImmSrc);\n" +
+    "state.setPort(nameToId.get(\"ImmSrc\"), immSrcVal, 2);\n" +
+    "Value o1Val = Value.createKnown(BitWidth.create(1), O1);\n" +
+    "state.setPort(nameToId.get(\"O1\"), o1Val, 1);\n" +
+    "Value aluOpVal = Value.createKnown(BitWidth.create(2), ALUOp);\n" +
+    "state.setPort(nameToId.get(\"ALUOp\"), aluOpVal, 2);\n";
 
     public static final int OP = 0;
     public static final int BRANCH = 1;
