@@ -22,6 +22,7 @@ public class RiscvALU extends InstanceFactory {
     public static final int B = 1;
     public static final int OP = 2;
     public static final int Z = 3;
+    public static final int C = 4;
 
     public RiscvALU() {
         super("RiscvALU");
@@ -39,7 +40,8 @@ public class RiscvALU extends InstanceFactory {
 		new Port(interp(xp[6],xp[0],0.5), interp(yp[6],yp[0],0.5), Port.INPUT, 32), // A
 		new Port(interp(xp[3],xp[4],0.5), interp(yp[3],yp[4],0.5), Port.INPUT, 32), // B
                 new Port(interp(xp[0],xp[1],0.66667), interp(yp[0],yp[1],0.66667), Port.INPUT, 3), // OP
-		new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.25), Port.OUTPUT, 1) }); // Z
+		new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.25), Port.OUTPUT, 1), // Z
+		new Port(interp(xp[1],xp[2],0.5), interp(yp[1],yp[2],0.5), Port.OUTPUT, 32) }); // C
     }
     private int interp(int a, int b, double t) {
 	    return (int)Math.round((double)a*(1.0-t)+(double)b*t);
@@ -65,7 +67,9 @@ public class RiscvALU extends InstanceFactory {
                ans = valueA | valueB;
                break;
         }
+        Value valueC = Value.createKnown(BitWidth.create(32), ans);
         Value valueZ = Value.createKnown(BitWidth.create(1), ans == 0 ? 1 : 0);
+        state.setPort(C, valueC, 32);
         state.setPort(Z, valueZ, 1);
     }
 
@@ -81,6 +85,7 @@ public class RiscvALU extends InstanceFactory {
         painter.drawPort(B, "B", Direction.EAST);
         painter.drawPort(OP, "OP", Direction.NORTH);
         painter.drawPort(Z, "Z", Direction.WEST);
+        painter.drawPort(C, "C", Direction.WEST);
     }
 
     @Override

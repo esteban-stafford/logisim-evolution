@@ -15,19 +15,23 @@ public class RiscvMainDecoder extends ProgrammableComponent
     "if(Op == 0x3) { // lw\n" +
     "    RegWrite = 1;\n" +
     "    ALUSrc = 1;\n" +
-    "    ResultSrc = 0x2;\n" +
+    "    ResultSrc = 1;\n" +
     "} else if(Op == 0x23) { // sw\n" +
-    "    ImmSrc = 0x1;\n" +
+    "    ImmSrc = 1;\n" +
     "    ALUSrc = 1;\n" +
     "    MemWrite = 1;\n" +
     "} else if(Op == 0x33) { // R-type\n" +
     "    RegWrite = 1;\n" +
-    "    ResultSrc = 0x1;\n" +
-    "    ALUOp = 0x2;\n" +
+    "    ALUOp = 2;\n" +
     "} else if(Op == 0x63) { // beq\n" +
-    "    ImmSrc = 0x2;\n" +
+    "    ImmSrc = 2;\n" +
     "    Branch = 1;\n" +
-    "    ALUOp = 0x1;\n" +
+    "    ALUOp = 1;\n" +
+    "} else if(Op == 0x13) { // addi\n" +
+    "    RegWrite = 1;\n" +
+    "    ALUSrc = 1;\n" +
+    "    ResultSrc = 0;\n" +
+    "    ALUOp = 2;\n" +
     "}\n" +
     "\n" +
     "Value branchVal = Value.createKnown(BitWidth.create(1), Branch);\n" +
