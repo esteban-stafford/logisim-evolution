@@ -20,7 +20,8 @@ public class Components extends Library {
                 new AddTool(new ProgrammableComponent()),
                 new AddTool(new ForwardingUnit()),
                 new AddTool(new RiscvMainDecoder()),
-                new AddTool(new RiscvALUDecoder())
+                new AddTool(new RiscvALUDecoder()),
+                new AddTool(new RiscvSE())
         });
     }
 
