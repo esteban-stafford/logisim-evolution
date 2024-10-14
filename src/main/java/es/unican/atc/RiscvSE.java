@@ -63,9 +63,9 @@ public class RiscvSE extends InstanceFactory {
 
          case 0x1:  // S-type instruction
             // Immediate is formed from bits [31:25] and [11:7] (contained within bits [31:7] of Imm)
-            signExtImm = ((imm >> 18) & 0x3F) << 5 | (imm & 0x1F);  // Extract imm[11:5] and imm[4:0]
-            if ((signExtImm & 0x1000) != 0) {  // Sign extend
-               signExtImm |= 0xFFFFF800;
+            signExtImm = ((imm >> 18) & 0x7F) << 5 | (imm & 0x1F);  // Extract imm[11:5] and imm[4:0]
+            if ((signExtImm & 0x800) != 0) {  // Sign extend
+               signExtImm |= 0xFFFFF000;
             }
             break;
 
