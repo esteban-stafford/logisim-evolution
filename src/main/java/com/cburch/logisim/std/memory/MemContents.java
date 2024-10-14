@@ -347,20 +347,21 @@ public class MemContents implements Cloneable, HexModel {
     }
   }
 
-  public void copyFrom(long start, MemContents src, long offs, int count) {
-    count = (int) Math.min(count, getLastOffset() - start + 1);
+  public void copyFrom(long start, MemContents src, long offs, long count) {
+    count = Math.min(count, getLastOffset() - start + 1);
     if (count <= 0) return;
-    if (src.addrBits != addrBits)
+    if (src.addrBits != addrBits) {
       throw new IllegalArgumentException(
           String.format(
               "memory width mismatch: src is %d bits wide, dest is %d bits wide",
               src.addrBits, addrBits));
-    if (offs + count - 1 > src.getLastOffset())
+    }
+    if (offs + count - 1 > src.getLastOffset()) {
       throw new IllegalArgumentException(
           String.format(
               "memory offset out of range: offset 0x%x count 0x%x exceeds last valid offset 0x%x",
               offs, count, src.getLastOffset()));
-
+    }
     var dp = (int) (start >>> PAGE_SIZE_BITS);
     var di = (int) (start & PAGE_MASK);
 
@@ -379,7 +380,7 @@ public class MemContents implements Cloneable, HexModel {
       } else {
         if (dstPage == null) dstPage = pages[dp] = MemContentsSub.createPage(PAGE_SIZE, width, randomize);
         // copy locations di..di+n on this page
-        final var vals = srcPage.get(si, n);
+        final var vals = srcPage.get(si, (int)n);
         dstPage.set(di, vals);
       }
       count -= n;

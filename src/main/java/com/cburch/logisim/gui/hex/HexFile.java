@@ -268,7 +268,7 @@ public class HexFile {
         loaded = r.decodeOrWarn();
       }
       if (loaded == null) return false;
-      dst.copyFrom(0, loaded, 0, (int) (loaded.getLastOffset() + 1));
+      dst.copyFrom(0, loaded, 0, loaded.getLastOffset() + 1);
       return true;
     } finally {
       try {
