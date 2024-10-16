@@ -365,30 +365,6 @@ public final class ProjectActions {
     return ret;
   }
 
-  private static void rmActualBehaviorInFolder(String folder)
-  {
-    File directory = new File(folder);
-    File[] files = directory.listFiles();
-    // Ensure files is not null
-    if (files != null)
-    {
-      for (File f : files)
-      {
-        if (f.getName().startsWith("ActualBehavior"))
-        {
-          f.delete();
-        }
-      }
-    }
-  }
-
-  private static void cleanupProgrammableComponentBehaviors()
-  {
-    rmActualBehaviorInFolder("./src/main/java/es/unican/atc/");
-    rmActualBehaviorInFolder("./build/classes/java/main/es/unican/atc/");
-    rmActualBehaviorInFolder("./bin/main/es/unican/atc/");
-  }
-
   public static void doQuit() {
     final var top = Projects.getTopFrame();
     top.savePreferences();
@@ -396,7 +372,6 @@ public final class ProjectActions {
     for (Project proj : new ArrayList<>(Projects.getOpenProjects())) {
       if (!proj.confirmClose(S.get("confirmQuitTitle"))) return;
     }
-    cleanupProgrammableComponentBehaviors();
     System.exit(0);
   }
 

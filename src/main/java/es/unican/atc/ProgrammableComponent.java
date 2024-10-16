@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import java.net.URL; 
+
 
 public class ProgrammableComponent extends InstanceFactory implements AttributeListener
 {
@@ -136,6 +139,8 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         }
     }
 
+    Path behaviorTempFolder=null;
+
     public static final BehaviorAttribute behaviorAttr = new BehaviorAttribute();
 
     private BehaviorAttributes attributes;
@@ -147,7 +152,7 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
     private static long behaviorCounter = 0;
     private static final WeakHashMap<ProgrammableComponent, BehaviorFrame> windowRegistry = new WeakHashMap<>();
 
-    private static String behaviorClassImplementationHeaderTemplate = "package es.unican.atc;\n\n" +
+    private static String behaviorClassImplementationHeaderTemplate = "import es.unican.atc.Behavior\n;" +
         "import java.util.HashMap;\n" +
         "import com.cburch.logisim.instance.InstanceState;\n"+
         "import com.cburch.logisim.data.BitWidth;\n"+
@@ -205,16 +210,28 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
 
     public boolean newBehavior(String behaviorBody, Instance instance)
     {
+        try
+        {
+            if(behaviorTempFolder==null)
+            {
+                behaviorTempFolder=Files.createTempDirectory(null);
+                behaviorTempFolder.toFile().deleteOnExit();
+            }
+        }catch (IOException e) {
+                throw new RuntimeException("Error creating temp folder " + e.getMessage());
+        }   
+
+
         String behaviorClassImplementationHeader=behaviorClassImplementationHeaderTemplate.replace("XX", Long.toString(behaviorCounter));
         String newBehaviorClassName="ActualBehaviorXX".replace("XX", Long.toString(behaviorCounter));
         File sourceFile=null;
         try{
             String fileName = newBehaviorClassName+".java";
-            sourceFile = new File("./src/main/java/es/unican/atc/"+fileName);
+            sourceFile = new File(behaviorTempFolder.toString(), fileName);
             Files.write(sourceFile.toPath(), (behaviorClassImplementationHeader+behaviorBody+behaviorClassImplementationTail).getBytes());
         } catch (Exception e) {
                 throw new RuntimeException("Error compiling class: " + e.getMessage());
-        }
+        }   
 
         /** Compilation Requirements *********************************************************************************************/
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
@@ -238,24 +255,17 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
             optionList, 
             null, 
             compilationUnit);
+
         /********************************************************************************************* Compilation Requirements **/
         if (task.call()) {
-            
-            /** Load and execute *************************************************************************************************/
-            // Create a new custom class loader, pointing to the directory that contains the compiled
-            // classes, this should point to the top of the package structure!
-            //URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
-            ClassLoader classLoader = getClass().getClassLoader();
-            // Load the class from the classloader by name....
-
             try{
-                Files.move(Paths.get("./src/main/java/es/unican/atc/"+newBehaviorClassName+".class"), Paths.get("./build/classes/java/main/es/unican/atc/"+newBehaviorClassName+".class"), StandardCopyOption.REPLACE_EXISTING);
-                //Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName.split("\\.")[0]);
-                
-                Class<?> loadedClass=classLoader.loadClass("es.unican.atc."+newBehaviorClassName);
-                 Class[] cArg = new Class[1];
-                 cArg[0] = String.class;
-                 Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorBody);
+                URL url = behaviorTempFolder.toUri().toURL();
+                URL[] urls = new URL[]{url};
+                ClassLoader cl = new URLClassLoader(urls);
+                Class<?> loadedClass=cl.loadClass(newBehaviorClassName);
+                Class[] cArg = new Class[1];
+                cArg[0] = String.class;
+                Object obj = loadedClass.getDeclaredConstructor(cArg).newInstance(behaviorBody);
                 // Santity check
                 if (obj instanceof Behavior) {
                     // Cast to the DoStuff interface
