@@ -438,6 +438,13 @@ public class AppPreferences {
   private static final PropertyChangeWeakSupport propertySupport =
       new PropertyChangeWeakSupport(AppPreferences.class);
 
+  // Autosave preferences
+  public static final String AUTOSAVE_ENABLE = "autosaveEnabled";
+  public static final String AUTOSAVE_PERIOD = "autosaveInterval";
+
+  public static final PrefMonitor<Boolean> AUTOSAVE_ENABLED = create(new PrefMonitorBoolean(AUTOSAVE_ENABLE, true));
+  public static final PrefMonitor<Integer> AUTOSAVE_INTERVAL = create(new PrefMonitorInt(AUTOSAVE_PERIOD, 30));
+
   // Template preferences
   public static final int IconSize = 16;
   public static final int FONT_SIZE = 14;
@@ -541,6 +548,7 @@ public class AppPreferences {
   public static final int DEFAULT_COMPONENT_COLOR = 0x00000000;
   public static final int DEFAULT_COMPONENT_SECONDARY_COLOR = 0x99999999;
   public static final int DEFAULT_COMPONENT_GHOST_COLOR = 0x99999999;
+  public static final int DEFAULT_COMPONENT_ICON_COLOR = 0x00000000;
 
   // restores default grid colors
   public static void setDefaultGridColors() {
@@ -551,6 +559,7 @@ public class AppPreferences {
     COMPONENT_COLOR.set(DEFAULT_COMPONENT_COLOR);
     COMPONENT_SECONDARY_COLOR.set(DEFAULT_COMPONENT_SECONDARY_COLOR);
     COMPONENT_GHOST_COLOR.set(DEFAULT_COMPONENT_GHOST_COLOR);
+    COMPONENT_ICON_COLOR.set(DEFAULT_COMPONENT_ICON_COLOR);
   }
 
   public static final PrefMonitor<Integer> CANVAS_BG_COLOR =
@@ -567,6 +576,8 @@ public class AppPreferences {
       create(new PrefMonitorInt("componentSecondaryColor", DEFAULT_COMPONENT_SECONDARY_COLOR));
   public static final PrefMonitor<Integer> COMPONENT_GHOST_COLOR =
       create(new PrefMonitorInt("componentGhostColor", DEFAULT_COMPONENT_GHOST_COLOR));
+  public static final PrefMonitor<Integer> COMPONENT_ICON_COLOR =
+      create(new PrefMonitorInt("componentIconColor", DEFAULT_COMPONENT_ICON_COLOR));
 
 
   // Layout preferences
