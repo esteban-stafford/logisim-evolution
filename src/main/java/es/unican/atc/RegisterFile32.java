@@ -4,8 +4,11 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import static com.cburch.logisim.std.Strings.S;
+
 import com.cburch.logisim.data.Attribute;
 import com.cburch.logisim.data.AttributeOption;
+import com.cburch.logisim.data.Attributes;
 import com.cburch.logisim.data.Bounds;
 import com.cburch.logisim.data.BitWidth;
 import com.cburch.logisim.data.Direction;
@@ -18,9 +21,9 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
 
+
 class RegisterFile32 extends InstanceFactory {
 
-   private static final Attribute[] ATTRIBUTES = { StdAttr.TRIGGER };
    public static final int A1 = 0;
    public static final int A2 = 1;
    public static final int A3 = 2;
@@ -37,13 +40,23 @@ class RegisterFile32 extends InstanceFactory {
    public static final int NUM_REGISTERS = 32;
    public static final int REGISTER_WIDTH = 32;
 
+   public static final Attribute<Boolean> CLEAR_TO_ZERO =
+      Attributes.forBoolean("clearToZero", S.getter("Clear to Zero"));
+   public static final Object DEFAULT_CLEAR_TO_ZERO = Boolean.TRUE;
+
    RegisterFile32() {
       super("RegisterFile32", new SimpleStringGetter("32x32 Register File"));
       int spacing = 10;
       int width = 14 * spacing;
       int height = 20 * spacing;
       int address_width = (int)(Math.log(NUM_REGISTERS)/Math.log(2));
-      setAttributes(new Attribute[] { StdAttr.TRIGGER }, new AttributeOption[] { StdAttr.TRIG_RISING });
+      setAttributes(new Attribute[] {
+         StdAttr.TRIGGER,
+         CLEAR_TO_ZERO
+      }, new Object[] {
+         StdAttr.TRIG_RISING,
+         DEFAULT_CLEAR_TO_ZERO
+      });
       Bounds bounds = Bounds.create(-width/2, -height/2, width, height);
       setOffsetBounds(bounds);
       int x0 = bounds.getX();
@@ -69,10 +82,19 @@ class RegisterFile32 extends InstanceFactory {
    public void propagate(InstanceState state) {
       RegisterData data = RegisterData.get(state, NUM_REGISTERS, 32);
       AttributeOption triggerType = state.getAttributeValue(StdAttr.TRIGGER);
+      Object clearToZero = state.getAttributeValue(CLEAR_TO_ZERO);
       BitWidth WIDTH = BitWidth.create(32);
 
       if (state.getPortValue(CLR) == Value.TRUE) {
-         data.reset(Value.createKnown(32, 0));
+         if(clearToZero == Boolean.TRUE) {
+            for (int i = 0; i < NUM_REGISTERS; i++) {
+               data.regs[i] = Value.createKnown(32, 0);
+            }
+         } else {
+            for (int i = 0; i < NUM_REGISTERS; i++) {
+               data.regs[i] = Value.createKnown(32, i*16);
+            }
+         }
       }
       if (data.updateClock(state.getPortValue(CLK), triggerType)) {
          int a3 = (int)state.getPortValue(A3).toLongValue();
