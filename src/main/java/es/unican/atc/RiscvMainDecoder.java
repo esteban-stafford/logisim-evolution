@@ -10,6 +10,7 @@ public class RiscvMainDecoder extends ProgrammableComponent
 {
     private static String behaviorClassImplementationBody=
     "long Op = state.getPortValue(nameToId.get(\"Op\")).toLongValue();\n" +
+    "long Func3 = state.getPortValue(nameToId.get(\"Func3\")).toLongValue();\n" +
     "long RegWrite = 0, ImmSrc = 0, ALUSrc = 0, MemWrite = 0, ResultSrc = 0, Branch = 0, ALUOp = 0, O1 = 0;\n" +
     "\n" +
     "if(Op == 0x3) { // lw\n" +
@@ -52,15 +53,17 @@ public class RiscvMainDecoder extends ProgrammableComponent
     "state.setPort(nameToId.get(\"ALUOp\"), aluOpVal, 2);\n";
 
     public static final int OP = 0;
-    public static final int BRANCH = 1;
-    public static final int RESULTSRC = 2;
-    public static final int MEMWRITE = 3;
-    public static final int ALUSRC = 4;
-    public static final int IMMSRC = 5;
-    public static final int REGWRITE = 6;
-    public static final int O1 = 7;
-    public static final int ALUOP = 8;
-    private static String[] labels = new String[] { "Op", "Branch", "ResultSrc", "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "O1", "ALUOp" };
+    public static final int FUNC3 = 1;
+    public static final int BRANCH = 2;
+    public static final int RESULTSRC = 3;
+    public static final int MEMWRITE = 4;
+    public static final int ALUSRC = 5;
+    public static final int IMMSRC = 6;
+    public static final int REGWRITE = 7;
+    public static final int O1 = 8;
+    public static final int ALUOP = 9;
+    private static String[] labels = new String[] { "Op", "Func3", "Branch", "ResultSrc",
+       "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "O1", "ALUOp" };
 
     protected RiscvMainDecoder()
     {
@@ -75,7 +78,8 @@ public class RiscvMainDecoder extends ProgrammableComponent
        int y0 = bounds.getY();
        int y1 = y0 + bounds.getHeight();
        setPorts(new Port[] {
-          new Port(x0,             y0 + 6*spacing, Port.INPUT,  7), // Op (7-bit wide)
+          new Port(x0,             y0 + 4*spacing, Port.INPUT,  7), // Op (7-bit wide)
+          new Port(x0,             y0 + 8*spacing, Port.INPUT,  3), // Func3 (3-bit wide)
           new Port(x1,             y0 + spacing,   Port.OUTPUT, 1), // Branch
           new Port(x1,             y0 + 2*spacing, Port.OUTPUT, 1), // ResultSrc
           new Port(x1,             y0 + 3*spacing, Port.OUTPUT, 1), // MemWrite
@@ -88,6 +92,7 @@ public class RiscvMainDecoder extends ProgrammableComponent
 
        portNameToId=new HashMap<String, Integer>() {{
           put("Op", OP);
+          put("Func3", FUNC3);
           put("Branch", BRANCH);
           put("ResultSrc", RESULTSRC);
           put("MemWrite", MEMWRITE);
@@ -103,6 +108,7 @@ public class RiscvMainDecoder extends ProgrammableComponent
     public void paintInstance(InstancePainter painter) {
         painter.drawRectangle(painter.getBounds(), "");
         painter.drawPort(OP, labels[OP], Direction.EAST);
+        painter.drawPort(FUNC3, labels[FUNC3], Direction.EAST);
         painter.drawPort(BRANCH, labels[BRANCH], Direction.WEST);
         painter.drawPort(RESULTSRC, labels[RESULTSRC], Direction.WEST);
         painter.drawPort(MEMWRITE, labels[MEMWRITE], Direction.WEST);
