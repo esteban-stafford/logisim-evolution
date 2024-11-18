@@ -116,6 +116,6 @@ public class RiscvMainDecoder extends ProgrammableComponent
         painter.drawPort(IMMSRC, labels[IMMSRC], Direction.WEST);
         painter.drawPort(REGWRITE, labels[REGWRITE], Direction.WEST);
         painter.drawPort(O1, labels[O1], Direction.WEST);
-        painter.drawPort(ALUOP, labels[ALUOP], Direction.NORTH);
+        painter.drawPort(ALUOP, labels[ALUOP], Direction.SOUTH);
     }
 }
