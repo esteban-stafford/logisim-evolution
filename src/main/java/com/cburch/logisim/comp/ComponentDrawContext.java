@@ -20,6 +20,7 @@ import com.cburch.logisim.instance.InstancePainter;
 import com.cburch.logisim.prefs.AppPreferences;
 import com.cburch.logisim.util.GraphicsUtil;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 public class ComponentDrawContext {
@@ -58,6 +59,7 @@ public class ComponentDrawContext {
     this.circuitState = circuitState;
     this.base = base;
     this.g = g;
+    g.setFont(new Font("monospaced", Font.PLAIN, 12));
     this.showState = true;
     this.showColor = true;
     this.printView = printView;
