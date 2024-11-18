@@ -21,7 +21,9 @@ public class Components extends Library {
                 new AddTool(new ForwardingUnit()),
                 new AddTool(new RiscvMainDecoder()),
                 new AddTool(new RiscvALUDecoder()),
-                new AddTool(new RiscvSE())
+                new AddTool(new RiscvSE()),
+                new AddTool(new RiscvForwardingUnit()),
+                new AddTool(new RiscvHazardUnit())
         });
     }
 
