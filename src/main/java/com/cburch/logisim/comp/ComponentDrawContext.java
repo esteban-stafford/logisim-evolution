@@ -59,7 +59,8 @@ public class ComponentDrawContext {
     this.circuitState = circuitState;
     this.base = base;
     this.g = g;
-    g.setFont(new Font("monospaced", Font.PLAIN, 12));
+    if(g != null)
+       g.setFont(new Font("monospaced", Font.PLAIN, 12));
     this.showState = true;
     this.showColor = true;
     this.printView = printView;
