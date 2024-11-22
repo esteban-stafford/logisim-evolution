@@ -130,9 +130,4 @@ public class Tap extends Splitter {
     return TapFactory.instance;
   }
 
-  @Override
-  public String getToolTip(ComponentUserEvent e) {
-    return new String("Hello");
-  }
-
 }
