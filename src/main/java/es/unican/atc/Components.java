@@ -14,14 +14,17 @@ public class Components extends Library {
         tools = Arrays.asList(new Tool[] {
                 new AddTool(new RegisterFile16()),
                 new AddTool(new RegisterFile32()),
+                new AddTool(new RegisterFile32Baremetal()),
                 new AddTool(new ALU()),
                 new AddTool(new ArmALU()),
                 new AddTool(new RiscvALU()),
                 new AddTool(new ProgrammableComponent()),
                 new AddTool(new ForwardingUnit()),
                 new AddTool(new RiscvMainDecoder()),
+                new AddTool(new RiscvMainDecoderExtended()),
                 new AddTool(new RiscvALUDecoder()),
                 new AddTool(new RiscvSE()),
+                new AddTool(new RiscvSE_J()),
                 new AddTool(new RiscvForwardingUnit()),
                 new AddTool(new RiscvHazardUnit())
         });
