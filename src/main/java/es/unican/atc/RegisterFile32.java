@@ -21,7 +21,6 @@ import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
 
-
 class RegisterFile32 extends InstanceFactory {
 
    public static final int A1 = 0;
@@ -123,9 +122,9 @@ class RegisterFile32 extends InstanceFactory {
       painter.drawPort(A3, "A3", Direction.EAST);
       painter.drawPort(WD3, "WD3", Direction.EAST);
 
-      painter.drawPort(CLR, "CLR", Direction.SOUTH);
+      painter.drawPort(CLR, "CLR", Direction.NORTH);
       painter.drawClock(CLK, Direction.NORTH);
-      painter.drawPort(WE3, "WE3", Direction.NORTH);
+      painter.drawPort(WE3, "WE3", Direction.SOUTH);
 
       painter.drawPort(RD1, "RD1", Direction.WEST);
       painter.drawPort(RD2, "RD2", Direction.WEST);
