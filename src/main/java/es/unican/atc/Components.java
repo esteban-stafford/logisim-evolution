@@ -14,7 +14,7 @@ public class Components extends Library {
         tools = Arrays.asList(new Tool[] {
                 new AddTool(new RegisterFile16()),
                 new AddTool(new ArmALU()),
-                // new AddTool(new ArmMainDecoder()),
+                new AddTool(new ArmMainDecoder()),
                 new AddTool(new ArmALUDecoder()),
 
                 new AddTool(new RegisterFile32()),

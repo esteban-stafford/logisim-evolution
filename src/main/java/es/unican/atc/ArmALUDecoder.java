@@ -21,7 +21,7 @@ public class ArmALUDecoder extends RectangularProgrammableComponent {
 
       portProperties = new PortProperties[] {
          new PortProperties(0, "AluOp", x0 + 7 * spacing, y0, Port.INPUT, Direction.NORTH, 1),
-         new PortProperties(1, "Func", x0, y0 + 4 * spacing, Port.INPUT, Direction.EAST, 5),
+         new PortProperties(1, "Funct", x0, y0 + 4 * spacing, Port.INPUT, Direction.EAST, 5),
          new PortProperties(2, "FlagW", x1, y0 + 2 * spacing, Port.OUTPUT, Direction.WEST, 2),
          new PortProperties(3, "AluControl", x1, y0 + 6 * spacing, Port.OUTPUT, Direction.WEST, 2)
       };

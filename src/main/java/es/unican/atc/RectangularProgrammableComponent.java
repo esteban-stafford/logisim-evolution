@@ -29,6 +29,7 @@ public class RectangularProgrammableComponent extends ProgrammableComponent {
 
         public int getId() { return id; }
         public String getLabel() { return label; }
+        public String getVarName() { return label.toLowerCase(); }
         public int getX() { return x; }
         public int getY() { return y; }
         public String getType() { return type; }
@@ -58,8 +59,8 @@ public class RectangularProgrammableComponent extends ProgrammableComponent {
 
         for (PortProperties port : portProperties) {
             if (port.getType() == Port.INPUT) {
-                behaviorBuilder.append("       long ")
-                        .append(port.getLabel())
+                behaviorBuilder.append("long ")
+                        .append(port.getVarName())
                         .append(" = state.getPortValue(nameToId.get(\"")
                         .append(port.getLabel())
                         .append("\")).toLongValue();\n");
@@ -70,11 +71,9 @@ public class RectangularProgrammableComponent extends ProgrammableComponent {
 
         for (PortProperties port : portProperties) {
             if (port.getType() == Port.OUTPUT) {
-                behaviorBuilder.append("       Value ")
-                        .append(port.getLabel())
-                        .append(" = Value.createKnown(BitWidth.create(")
-                        .append(port.getWidth())
-                        .append("), 0);\n");
+                behaviorBuilder.append("long ")
+                        .append(port.getVarName())
+                        .append(" = 0;\n");
             }
         }
 
@@ -82,11 +81,13 @@ public class RectangularProgrammableComponent extends ProgrammableComponent {
 
         for (PortProperties port : portProperties) {
             if (port.getType() == Port.OUTPUT) {
-                behaviorBuilder.append("       state.setPort(nameToId.get(\"")
+                behaviorBuilder.append("state.setPort(nameToId.get(\"")
                         .append(port.getLabel())
-                        .append("\"), ")
-                        .append(port.getLabel())
-                        .append(", ")
+                        .append("\"), Value.createKnown(BitWidth.create(")
+                        .append(port.getWidth())
+                        .append("), ")
+                        .append(port.getVarName())
+                        .append("), ")
                         .append(port.getWidth())
                         .append(");\n");
             }
