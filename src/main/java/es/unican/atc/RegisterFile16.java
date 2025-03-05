@@ -140,7 +140,7 @@ class RegisterFile16 extends InstanceFactory {
       Font font = g.getFont().deriveFont(9f);
 
       for (int i = 0; i < NUM_REGISTERS; i++) {
-         GraphicsUtil.drawText(g, font, "x"+i,
+         GraphicsUtil.drawText(g, font, "R"+i,
             bounds.getX() + 50,
             bounds.getY() + 25 + i*10,
             GraphicsUtil.H_RIGHT, GraphicsUtil.V_CENTER);

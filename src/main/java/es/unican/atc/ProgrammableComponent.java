@@ -170,7 +170,7 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         "   public void propagate(InstanceState state, HashMap<String, Integer> nameToId){\n";
         
     
-    private String behaviorClassImplementationBody="     System.out.println(\"HEY\");\n"; 
+    protected String behaviorClassImplementationBody="     System.out.println(\"HEY\");\n"; 
 
     private static String behaviorClassImplementationTail= "    }\n"+
         "}";
