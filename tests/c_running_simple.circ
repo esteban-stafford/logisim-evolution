@@ -343,26 +343,26 @@ fe a4 26 23 fe b4 24 23
     <wire from="(1030,500)" to="(1040,500)"/>
     <wire from="(1040,500)" to="(1040,560)"/>
     <wire from="(1040,560)" to="(1120,560)"/>
-    <wire from="(1050,230)" to="(1050,370)"/>
+    <wire from="(1050,240)" to="(1050,370)"/>
     <wire from="(1060,690)" to="(1060,750)"/>
     <wire from="(1070,390)" to="(1110,390)"/>
     <wire from="(1070,400)" to="(1100,400)"/>
-    <wire from="(1090,220)" to="(1090,540)"/>
+    <wire from="(1090,230)" to="(1090,540)"/>
     <wire from="(1090,540)" to="(1150,540)"/>
-    <wire from="(1090,70)" to="(1090,220)"/>
+    <wire from="(1090,70)" to="(1090,230)"/>
     <wire from="(1090,70)" to="(1130,70)"/>
     <wire from="(1100,400)" to="(1100,470)"/>
     <wire from="(1100,400)" to="(1190,400)"/>
     <wire from="(1100,470)" to="(1100,530)"/>
     <wire from="(1100,530)" to="(1200,530)"/>
-    <wire from="(1110,320)" to="(1110,390)"/>
+    <wire from="(1110,330)" to="(1110,390)"/>
     <wire from="(1120,430)" to="(1120,560)"/>
     <wire from="(1120,430)" to="(1560,430)"/>
     <wire from="(1120,560)" to="(1130,560)"/>
     <wire from="(1120,90)" to="(1120,430)"/>
     <wire from="(1120,90)" to="(1130,90)"/>
     <wire from="(1130,580)" to="(1190,580)"/>
-    <wire from="(1150,210)" to="(1150,380)"/>
+    <wire from="(1150,220)" to="(1150,380)"/>
     <wire from="(1150,380)" to="(1640,380)"/>
     <wire from="(1160,80)" to="(1280,80)"/>
     <wire from="(1170,250)" to="(1170,610)"/>
@@ -411,8 +411,8 @@ fe a4 26 23 fe b4 24 23
     <wire from="(170,360)" to="(200,360)"/>
     <wire from="(170,40)" to="(1600,40)"/>
     <wire from="(170,40)" to="(170,360)"/>
-    <wire from="(210,230)" to="(210,350)"/>
-    <wire from="(210,230)" to="(560,230)"/>
+    <wire from="(210,110)" to="(210,350)"/>
+    <wire from="(210,110)" to="(850,110)"/>
     <wire from="(230,370)" to="(270,370)"/>
     <wire from="(280,390)" to="(280,500)"/>
     <wire from="(280,500)" to="(430,500)"/>
@@ -434,8 +434,6 @@ fe a4 26 23 fe b4 24 23
     <wire from="(50,410)" to="(160,410)"/>
     <wire from="(50,410)" to="(50,750)"/>
     <wire from="(50,750)" to="(1060,750)"/>
-    <wire from="(560,230)" to="(560,290)"/>
-    <wire from="(560,290)" to="(660,290)"/>
     <wire from="(610,180)" to="(610,210)"/>
     <wire from="(610,210)" to="(610,230)"/>
     <wire from="(610,230)" to="(610,250)"/>
@@ -452,14 +450,11 @@ fe a4 26 23 fe b4 24 23
     <wire from="(630,410)" to="(710,410)"/>
     <wire from="(630,580)" to="(630,640)"/>
     <wire from="(630,640)" to="(690,640)"/>
-    <wire from="(640,270)" to="(640,320)"/>
+    <wire from="(640,270)" to="(640,330)"/>
     <wire from="(640,270)" to="(660,270)"/>
-    <wire from="(640,320)" to="(1110,320)"/>
+    <wire from="(640,330)" to="(1110,330)"/>
     <wire from="(640,500)" to="(640,600)"/>
     <wire from="(640,600)" to="(760,600)"/>
-    <wire from="(650,280)" to="(650,610)"/>
-    <wire from="(650,280)" to="(660,280)"/>
-    <wire from="(650,610)" to="(920,610)"/>
     <wire from="(650,660)" to="(650,720)"/>
     <wire from="(650,660)" to="(910,660)"/>
     <wire from="(660,450)" to="(660,560)"/>
@@ -475,12 +470,14 @@ fe a4 26 23 fe b4 24 23
     <wire from="(760,600)" to="(1200,600)"/>
     <wire from="(780,340)" to="(780,350)"/>
     <wire from="(780,340)" to="(830,340)"/>
-    <wire from="(790,210)" to="(1150,210)"/>
-    <wire from="(790,220)" to="(1090,220)"/>
-    <wire from="(790,230)" to="(1050,230)"/>
-    <wire from="(790,240)" to="(970,240)"/>
-    <wire from="(790,250)" to="(860,250)"/>
-    <wire from="(790,260)" to="(830,260)"/>
+    <wire from="(790,200)" to="(850,200)"/>
+    <wire from="(790,210)" to="(910,210)"/>
+    <wire from="(790,220)" to="(1150,220)"/>
+    <wire from="(790,230)" to="(1090,230)"/>
+    <wire from="(790,240)" to="(1050,240)"/>
+    <wire from="(790,250)" to="(970,250)"/>
+    <wire from="(790,260)" to="(860,260)"/>
+    <wire from="(790,270)" to="(830,270)"/>
     <wire from="(790,280)" to="(940,280)"/>
     <wire from="(80,320)" to="(320,320)"/>
     <wire from="(80,320)" to="(80,350)"/>
@@ -488,10 +485,11 @@ fe a4 26 23 fe b4 24 23
     <wire from="(800,630)" to="(800,700)"/>
     <wire from="(800,630)" to="(900,630)"/>
     <wire from="(800,700)" to="(970,700)"/>
-    <wire from="(830,260)" to="(830,340)"/>
+    <wire from="(830,270)" to="(830,340)"/>
+    <wire from="(850,110)" to="(850,200)"/>
     <wire from="(850,370)" to="(880,370)"/>
     <wire from="(850,430)" to="(940,430)"/>
-    <wire from="(860,250)" to="(860,580)"/>
+    <wire from="(860,260)" to="(860,580)"/>
     <wire from="(880,350)" to="(880,370)"/>
     <wire from="(880,350)" to="(930,350)"/>
     <wire from="(880,370)" to="(880,680)"/>
@@ -499,9 +497,11 @@ fe a4 26 23 fe b4 24 23
     <wire from="(90,370)" to="(100,370)"/>
     <wire from="(900,450)" to="(900,630)"/>
     <wire from="(900,450)" to="(960,450)"/>
+    <wire from="(910,210)" to="(910,540)"/>
+    <wire from="(910,540)" to="(920,540)"/>
     <wire from="(920,370)" to="(920,400)"/>
     <wire from="(920,370)" to="(930,370)"/>
-    <wire from="(920,610)" to="(920,650)"/>
+    <wire from="(920,540)" to="(920,650)"/>
     <wire from="(940,280)" to="(940,340)"/>
     <wire from="(940,430)" to="(940,610)"/>
     <wire from="(940,430)" to="(960,430)"/>
@@ -510,7 +510,7 @@ fe a4 26 23 fe b4 24 23
     <wire from="(950,670)" to="(950,680)"/>
     <wire from="(950,680)" to="(970,680)"/>
     <wire from="(960,360)" to="(1000,360)"/>
-    <wire from="(970,240)" to="(970,420)"/>
+    <wire from="(970,250)" to="(970,420)"/>
     <wire from="(970,470)" to="(1100,470)"/>
     <wire from="(970,470)" to="(970,500)"/>
     <wire from="(970,500)" to="(990,500)"/>
@@ -524,34 +524,36 @@ fe a4 26 23 fe b4 24 23
     <a name="circuitnamedboxfixedsize" val="true"/>
     <a name="simulationFrequency" val="1.0"/>
     <appear>
-      <rect fill="none" height="100" stroke="#000000" stroke-width="2" width="130" x="50" y="50"/>
+      <rect fill="none" height="127" stroke="#000000" stroke-width="2" width="130" x="50" y="50"/>
       <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="start" x="60" y="129">Zero</text>
       <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="start" x="60" y="70">Op</text>
       <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="start" x="60" y="90">Funct3</text>
       <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="start" x="60" y="109">Funct7</text>
       <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="60">PCSrc</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="70">ResultSrc</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="80">MemWrite</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="100">ALUSrc</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="110">ImmSrc</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="120">RegWrite</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="171" y="90">ALUControl</text>
-      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="140">O1</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="80">ResultSrc</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="90">MemWrite</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="110">ALUSrc</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="120">ImmSrc</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="170" y="130">RegWrite</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="171" y="100">ALUControl</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="end" x="173" y="161">O1</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="middle" x="144" y="70">PCOrReg</text>
+      <text dominant-baseline="central" font-family="SansSerif" font-size="12" text-anchor="middle" x="158" y="141">Op0</text>
       <circ-anchor facing="east" x="50" y="140"/>
       <circ-port dir="in" pin="270,700" x="50" y="110"/>
       <circ-port dir="in" pin="280,670" x="50" y="90"/>
       <circ-port dir="in" pin="290,340" x="50" y="130"/>
       <circ-port dir="in" pin="300,490" x="50" y="70"/>
-      <circ-port dir="out" pin="770,340" x="50" y="150"/>
-      <circ-port dir="out" pin="770,370" x="50" y="140"/>
-      <circ-port dir="out" pin="770,400" x="180" y="70"/>
-      <circ-port dir="out" pin="770,420" x="180" y="80"/>
-      <circ-port dir="out" pin="770,450" x="180" y="100"/>
-      <circ-port dir="out" pin="770,480" x="180" y="110"/>
-      <circ-port dir="out" pin="770,510" x="180" y="120"/>
-      <circ-port dir="out" pin="770,540" x="50" y="80"/>
-      <circ-port dir="out" pin="770,570" x="180" y="140"/>
-      <circ-port dir="out" pin="770,680" x="180" y="90"/>
+      <circ-port dir="out" pin="770,340" x="180" y="60"/>
+      <circ-port dir="out" pin="770,370" x="180" y="70"/>
+      <circ-port dir="out" pin="770,400" x="180" y="80"/>
+      <circ-port dir="out" pin="770,420" x="180" y="90"/>
+      <circ-port dir="out" pin="770,450" x="180" y="110"/>
+      <circ-port dir="out" pin="770,480" x="180" y="120"/>
+      <circ-port dir="out" pin="770,510" x="180" y="130"/>
+      <circ-port dir="out" pin="770,540" x="180" y="140"/>
+      <circ-port dir="out" pin="770,570" x="180" y="160"/>
+      <circ-port dir="out" pin="770,680" x="180" y="100"/>
     </appear>
     <comp lib="0" loc="(270,700)" name="Pin">
       <a name="appearance" val="classic"/>
