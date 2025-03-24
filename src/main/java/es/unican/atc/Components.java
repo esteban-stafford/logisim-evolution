@@ -16,6 +16,8 @@ public class Components extends Library {
                 new AddTool(new ArmALU()),
                 new AddTool(new ArmMainDecoder()),
                 new AddTool(new ArmALUDecoder()),
+                new AddTool(new ArmForwardingUnit()),
+                new AddTool(new ArmHazardUnit()),
 
                 new AddTool(new RegisterFile32()),
                 new AddTool(new RiscvALU()),
