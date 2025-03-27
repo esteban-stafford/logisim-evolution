@@ -102,13 +102,13 @@ class RegisterFile16 extends InstanceFactory {
          int a3 = (int)state.getPortValue(A3).toLongValue();
          Value wr3 = state.getPortValue(WD3);
          Value we3 = state.getPortValue(WE3);
-         Value r15 = state.getPortValue(R15);
 
          if(we3 == Value.TRUE && a3 >= 0) {
             data.regs[a3] = wr3;
          }
-         data.regs[15] = r15;
       }
+      Value r15 = state.getPortValue(R15);
+      data.regs[15] = r15;
 
       int a1 = (int)state.getPortValue(A1).toLongValue();
       int a2 = (int)state.getPortValue(A2).toLongValue();
