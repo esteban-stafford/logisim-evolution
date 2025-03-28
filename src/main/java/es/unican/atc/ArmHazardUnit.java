@@ -21,9 +21,9 @@ public class ArmHazardUnit extends RectangularProgrammableComponent {
 
         portProperties = new PortProperties[] {
             new PortProperties(0, "MemToReg", x1, y0 + 4 * spacing, Port.INPUT, Direction.WEST, 1),
-            new PortProperties(1, "RsD", x0, y0 + 2 * spacing, Port.INPUT, Direction.EAST, 4),
-            new PortProperties(2, "RtD", x0, y0 + 4 * spacing, Port.INPUT, Direction.EAST, 4),
-            new PortProperties(3, "RtE", x1, y0 + 2 * spacing, Port.INPUT, Direction.WEST, 4),
+            new PortProperties(1, "RA1D", x0, y0 + 2 * spacing, Port.INPUT, Direction.EAST, 4),
+            new PortProperties(2, "RA2D", x0, y0 + 4 * spacing, Port.INPUT, Direction.EAST, 4),
+            new PortProperties(3, "WA3E", x1, y0 + 2 * spacing, Port.INPUT, Direction.WEST, 4),
             new PortProperties(4, "stall", x0 + 5 * spacing, y0, Port.OUTPUT, Direction.NORTH, 1)
         };
 

@@ -20,10 +20,10 @@ public class ArmForwardingUnit extends RectangularProgrammableComponent {
       int y1 = y0 + bounds.getHeight();
 
       portProperties = new PortProperties[] {
-         new PortProperties(0, "RsE", x0, y0 + 3 * spacing, Port.INPUT, Direction.EAST, 4),
-         new PortProperties(1, "RtE", x0, y0 + 5 * spacing, Port.INPUT, Direction.EAST, 4),
-         new PortProperties(2, "WaM", x1, y0 + 1 * spacing, Port.INPUT, Direction.WEST, 4),
-         new PortProperties(3, "WaW", x1, y0 + 3 * spacing, Port.INPUT, Direction.WEST, 4),
+         new PortProperties(0, "RA1E", x0, y0 + 3 * spacing, Port.INPUT, Direction.EAST, 4),
+         new PortProperties(1, "RA2E", x0, y0 + 5 * spacing, Port.INPUT, Direction.EAST, 4),
+         new PortProperties(2, "WA3M", x1, y0 + 1 * spacing, Port.INPUT, Direction.WEST, 4),
+         new PortProperties(3, "WA3W", x1, y0 + 3 * spacing, Port.INPUT, Direction.WEST, 4),
          new PortProperties(4, "RegWriteM", x1, y0 + 5 * spacing, Port.INPUT, Direction.WEST, 1),
          new PortProperties(5, "RegWriteW", x1, y0 + 7 * spacing, Port.INPUT, Direction.WEST, 1),
          new PortProperties(6, "FwA", x0 + 3 * spacing, y0, Port.OUTPUT, Direction.NORTH, 2),
