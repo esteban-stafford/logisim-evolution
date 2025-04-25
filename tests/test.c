@@ -1,13 +1,13 @@
-int * io_base= (int *) 0x10000000;
-int a=20;
+int * io_base= (int *) 0xfffffff0;
+int a=1;
 
-void func(int * i, int b)
+void write_io(int * addr, int v)
 {
-  *io_base=b;
+  *addr=v;
 }
 
 int main()
 {
-  func(io_base, a);
+  write_io(io_base, a);
 }
 

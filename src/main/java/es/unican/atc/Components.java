@@ -14,7 +14,6 @@ public class Components extends Library {
         tools = Arrays.asList(new Tool[] {
                 new AddTool(new RegisterFile16()),
                 new AddTool(new RegisterFile32()),
-                new AddTool(new RegisterFile32Baremetal()),
                 new AddTool(new ALU()),
                 new AddTool(new ArmALU()),
                 new AddTool(new RiscvALU()),

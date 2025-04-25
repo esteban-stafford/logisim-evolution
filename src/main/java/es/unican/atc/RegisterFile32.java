@@ -40,9 +40,20 @@ class RegisterFile32 extends InstanceFactory {
    public static final int NUM_REGISTERS = 32;
    public static final int REGISTER_WIDTH = 32;
 
-   public static final Attribute<Boolean> CLEAR_TO_ZERO =
+   /*public static final Attribute<Boolean> CLEAR_TO_ZERO =
       Attributes.forBoolean("clearToZero", S.getter("Clear to Zero"));
-   public static final Object DEFAULT_CLEAR_TO_ZERO = Boolean.TRUE;
+   public static final Object DEFAULT_CLEAR_TO_ZERO = Boolean.TRUE;*/
+
+
+   public static final AttributeOption ZERO = new AttributeOption("zero", S.getter("Clear to Zero"));
+   public static final AttributeOption DUMMY = new AttributeOption("dummy", S.getter("Dummy values"));
+   public static final AttributeOption BAREMETAL = new AttributeOption("baremetal", S.getter("Baremetal"));
+   
+   public static final Attribute<AttributeOption> CLEAR =
+      Attributes.forOption(
+          "clear",
+          S.getter("Clear"),
+          new AttributeOption[] {ZERO, DUMMY, BAREMETAL});
 
    RegisterFile32() {
       super("RegisterFile32", new SimpleStringGetter("32x32 Register File"));
@@ -52,10 +63,10 @@ class RegisterFile32 extends InstanceFactory {
       int address_width = (int)(Math.log(NUM_REGISTERS)/Math.log(2));
       setAttributes(new Attribute[] {
          StdAttr.TRIGGER,
-         CLEAR_TO_ZERO
+         CLEAR
       }, new Object[] {
          StdAttr.TRIG_RISING,
-         DEFAULT_CLEAR_TO_ZERO
+         ZERO
       });
       Bounds bounds = Bounds.create(-width/2, -height/2, width, height);
       setOffsetBounds(bounds);
@@ -82,17 +93,27 @@ class RegisterFile32 extends InstanceFactory {
    public void propagate(InstanceState state) {
       RegisterData data = RegisterData.get(state, NUM_REGISTERS, 32);
       AttributeOption triggerType = state.getAttributeValue(StdAttr.TRIGGER);
-      Object clearToZero = state.getAttributeValue(CLEAR_TO_ZERO);
+      AttributeOption clearType = state.getAttributeValue(CLEAR);
       BitWidth WIDTH = BitWidth.create(32);
 
       if (state.getPortValue(CLR) == Value.TRUE) {
-         if(clearToZero == Boolean.TRUE) {
+         if(clearType.equals(CLEAR)) {
             for (int i = 0; i < NUM_REGISTERS; i++) {
                data.regs[i] = Value.createKnown(32, 0);
             }
-         } else {
+         } else if (clearType.equals(DUMMY)){
             for (int i = 0; i < NUM_REGISTERS; i++) {
                data.regs[i] = Value.createKnown(32, i*16);
+            }
+         } else if (clearType.equals(BAREMETAL)){
+            for (int i = 0; i < NUM_REGISTERS; i++) {
+               if(i==2) { //Stack pointer
+                  data.regs[i] = Value.createKnown(32,0x30000000);
+               }
+               else
+               {
+                  data.regs[i] = Value.createKnown(32,0);
+               }
             }
          }
       }
@@ -101,7 +122,8 @@ class RegisterFile32 extends InstanceFactory {
          Value wr3 = state.getPortValue(WD3);
          Value we3 = state.getPortValue(WE3);
 
-         if(we3 == Value.TRUE && a3 >= 0) {
+         //Reg 0 should not be written
+         if(we3 == Value.TRUE && a3 > 0) {
             data.regs[a3] = wr3;
          }
       }
