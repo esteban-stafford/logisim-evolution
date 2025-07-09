@@ -25,7 +25,8 @@ public class Components extends Library {
                 new AddTool(new RiscvSE()),
                 new AddTool(new RiscvSE_J()),
                 new AddTool(new RiscvForwardingUnit()),
-                new AddTool(new RiscvHazardUnit())
+                new AddTool(new RiscvHazardUnit()),
+                new AddTool(new BusEndpoint())
         });
     }
 
