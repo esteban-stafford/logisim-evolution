@@ -116,7 +116,7 @@ class BusEndpoint extends InstanceFactory {
 
       if(range_start<=addr_out.toLongValue() && range_end>addr_out.toLongValue())
       {
-          dev_addr=addr_out;
+          dev_addr=Value.createKnown(BitWidth.create(32), addr_out.toLongValue()-range_start);
           dev_in=data_out;
           data_in=dev_out;
           bus_req=Value.createUnknown(WIDTH); //This needs to be set
