@@ -11,7 +11,7 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
     private static String behaviorClassImplementationBody=
     "long Op = state.getPortValue(nameToId.get(\"Op\")).toLongValue();\n" +
     "long Funct3 = state.getPortValue(nameToId.get(\"Funct3\")).toLongValue();\n" +
-    "long RegWrite = 0, ImmSrc = 0, ALUSrc = 0, MemWrite = 0, ResultSrc = 0, Branch = 0, ALUOp = 0, O1 = 0, Op0=0, Jump=0, PcOrReg=0;\n" +
+    "long RegWrite = 0, ImmSrc = 0, ALUSrc = 0, MemWrite = 0, ResultSrc = 0, Branch = 0, ALUOp = 0, O1 = 0, Op0=0, Jump=0, PcOrReg=0, CsrWrite=0;\n" +
     "\n" +
     "if(Op == 0x3) { // lw\n" +
     "    RegWrite = 1;\n" +
@@ -49,8 +49,16 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
     "     ResultSrc=2;\n"+
     "     Jump=1;\n"+
     "     PcOrReg=1;\n"+
-    "}\n"+
-    "\n" +
+    "}else if(Op == 0x73) { //csr\n"+
+    "     if(Funct3==2){ //csrr\n" +
+    "         RegWrite = 1;\n" +
+    "         ResultSrc= 3;\n" +
+    "     }\n" +
+    "     else if(Funct3==1){ //csrw\n" +
+    "         CsrWrite = 1;\n" +
+    "         Op0=1;\n"+
+    "     }\n" +
+    "}\n" +
     "Value branchVal = Value.createKnown(BitWidth.create(1), Branch);\n" +
     "state.setPort(nameToId.get(\"Branch\"), branchVal, 1);\n" +
     "Value resultSrcVal = Value.createKnown(BitWidth.create(2), ResultSrc);\n" +
@@ -67,6 +75,8 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
     "state.setPort(nameToId.get(\"O1\"), o1Val, 1);\n" +
     "Value op0Val = Value.createKnown(BitWidth.create(1), Op0);\n" +
     "state.setPort(nameToId.get(\"Op0\"), op0Val, 1);\n" +
+    "Value csrWriteVal = Value.createKnown(BitWidth.create(1), CsrWrite);\n" +
+    "state.setPort(nameToId.get(\"CsrWrite\"), csrWriteVal, 1);\n" +
     "Value jumpVal = Value.createKnown(BitWidth.create(1), Jump);\n" +
     "state.setPort(nameToId.get(\"Jump\"), jumpVal, 1);\n" +
     "Value pcOrRegVal = Value.createKnown(BitWidth.create(1), PcOrReg);\n" +
@@ -83,12 +93,13 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
     public static final int IMMSRC = 6;
     public static final int REGWRITE = 7;
     public static final int OP0 = 8;
-    public static final int O1 = 9;
-    public static final int ALUOP = 10;
-    public static final int JUMP = 11;
-    public static final int PCORREG = 12;
+    public static final int CSRWRITE = 9;
+    public static final int O1 = 10;
+    public static final int ALUOP = 11;
+    public static final int JUMP = 12;
+    public static final int PCORREG = 13;
     private static String[] labels = new String[] { "Op", "Funct3", "Branch", "ResultSrc",
-       "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "Op0", "O1", "ALUOp", "Jump", "PcOrReg" };
+       "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "Op0", "CsrWrite", "O1", "ALUOp", "Jump", "PcOrReg"};
 
     protected RiscvMainDecoderExtended()
     {
@@ -112,7 +123,8 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
           new Port(x1,             y0 + 7*spacing, Port.OUTPUT, 3), // ImmSrc (3-bit wide)
           new Port(x1,             y0 + 8*spacing, Port.OUTPUT, 1), // RegWrite
           new Port(x1,             y0 + 9*spacing, Port.OUTPUT, 1),  // Op0
-          new Port(x1,             y0 + 11*spacing, Port.OUTPUT, 1), // O1
+          new Port(x1,             y0 + 10*spacing, Port.OUTPUT, 1), // CsrWrite
+          new Port(x1,             y0 + 12*spacing, Port.OUTPUT, 1), // O1
           new Port(x0 + 7*spacing, y1,             Port.OUTPUT, 2),  // ALUOp (2-bit wide)
           new Port(x0 + 4*spacing, y0,             Port.OUTPUT, 1),  // Jump
           new Port(x0 + 10*spacing, y0,             Port.OUTPUT, 1)  // PcOrReg
@@ -127,6 +139,7 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
           put("ALUSrc", ALUSRC);
           put("ImmSrc", IMMSRC);
           put("RegWrite", REGWRITE);
+          put("CsrWrite", CSRWRITE);
           put("O1", O1);
           put("ALUOp", ALUOP);
           put("Op0", OP0);
@@ -147,6 +160,7 @@ public class RiscvMainDecoderExtended extends ProgrammableComponent
         painter.drawPort(IMMSRC, labels[IMMSRC], Direction.WEST);
         painter.drawPort(REGWRITE, labels[REGWRITE], Direction.WEST);
         painter.drawPort(OP0, labels[OP0], Direction.WEST);
+        painter.drawPort(CSRWRITE, labels[CSRWRITE], Direction.WEST);
         painter.drawPort(O1, labels[O1], Direction.WEST);
         painter.drawPort(ALUOP, labels[ALUOP], Direction.SOUTH);
         painter.drawPort(JUMP, labels[JUMP], Direction.NORTH);
