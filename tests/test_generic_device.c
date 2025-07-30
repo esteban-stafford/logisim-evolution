@@ -26,3 +26,6 @@ int main()
   write_io(OUT, random);
 }
 
+__attribute__((section(".text.interrupt")))
+__attribute__((interrupt))
+void interrupt_routine(){}

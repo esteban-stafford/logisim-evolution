@@ -61,6 +61,7 @@ class GenericInDevice extends InstanceFactory{
     private Random random;
     private final long RANDOM_SEED = 12345L; // Seed fijo para reproducibilidad
     private Value lastClock;
+    private Value interrupting;
 
 
     public static final Attribute<Integer> SAMPLE_LATENCY =
@@ -112,6 +113,7 @@ class GenericInDevice extends InstanceFactory{
       this.current_cycle = 0;
       this.random = new Random(RANDOM_SEED);
       this.lastClock=null;
+      this.interrupting=Value.FALSE;
    }
 
    public State getCurrentState() {
@@ -132,8 +134,8 @@ class GenericInDevice extends InstanceFactory{
 
      if (state.getPortValue(CLEAR) == Value.TRUE) {
           reset();
-          state.setPort(INTERRUPT, Value.createKnown(BitWidth.create(1),0), 1);
           state.setPort(DATA_SEND, Value.createKnown(BitWidth.create(1),0), 1);
+          state.setPort(INTERRUPT, interrupting, 1);
           return;
      }
 
@@ -157,6 +159,8 @@ class GenericInDevice extends InstanceFactory{
          state.setPort(DATA_SEND, Value.createKnown(BitWidth.create(32), currentState.ordinal()), 1);
          System.out.println("Chequeando Estado: "+currentState.ordinal());
       }
+          
+      state.setPort(INTERRUPT, interrupting, 1);
    }
 
 
@@ -200,7 +204,7 @@ class GenericInDevice extends InstanceFactory{
                 // momento en el cual se pasa al estado MEASUREMENT_READY.
                 if (this.taken_samples >= this.num_samples && this.num_samples > 0) { // num_samples > 0 para evitar transiciones si no se ha configurado
                     this.currentState = State.MEASUREMENT_READY;
-                    state.setPort(INTERRUPT, Value.createKnown(BitWidth.create(1),1), 1);
+                    interrupting=Value.TRUE;
                     System.out.println("SENSING -> MEASUREMENT_READY: Todas las muestras tomadas.");
                 }
             }
@@ -223,14 +227,14 @@ class GenericInDevice extends InstanceFactory{
             if (this.num_samples == 0) {
                 this.currentState = State.IDLE;
                 System.out.println("MEASUREMENT_READY -> IDLE: num_samples ha llegado a cero.");
-                state.setPort(INTERRUPT, Value.createKnown(BitWidth.create(1), 0), 1);
-            }
-            else{
-               state.setPort(INTERRUPT, Value.createKnown(BitWidth.create(32), 1), 1);
+                interrupting=Value.FALSE;
             }
         }
-        else{
-           state.setPort(INTERRUPT, Value.createKnown(BitWidth.create(32), 1), 1);
+
+        if(state.getPortValue(INTERRUPT_SERVED)==Value.TRUE)
+        {
+          System.out.println("Interrupcion servida");
+          interrupting=Value.FALSE;
         }
     }
    

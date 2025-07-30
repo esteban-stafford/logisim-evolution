@@ -84,7 +84,7 @@ public class RiscvSE_J extends InstanceFactory {
 
          case 0x3:  // U-type instruction
             // Immediate is in bits [31:12] of the instruction (contained within bits [31:7] of Imm)
-            signExtImm = (imm >> 13) & 0xFFFFF;  // Use bits 31:12 directly
+            signExtImm = (imm >> 5) & 0xFFFFF;  // Use bits 31:12 directly
             signExtImm <<= 12;  // Left shift to place in upper 20 bits
             break;
 

@@ -36,11 +36,20 @@ MEMORY
 
 SECTIONS
 {
+  
   .text : {
     *(.text)
   } > TEXT
-
-  .data : {
+  
+  .text.interrupt : {
+    *(.text.interrupt)
+  } > TEXT
+  
+  .text.end : {
+    *(.text.end)
+  } > TEXT
+  
+    .data : {
     *(.data)
     *(.bss)
   } > DATA
@@ -56,22 +65,37 @@ SECTIONS
 }
 EOF
 
+
 # Compile and link
 #$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -c -S -o $BASE.s $SRC
 #$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -c -o $BASE.o $SRC
 $RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -T $LAYOUT -nostdlib -S -o $BASE.s $SRC
 
+#Adds a new end section and label at the end of the code to jump to after termination of the program.
+#line_number=$(($(wc -l < $BASE.s) - 1))
+line_number=$(wc -l < $BASE.s)
+sed -i "${line_number}i\
+\.section	\.text\.end,\"ax\",@progbits\n\
+\t\.align	2\n\
+\t\.globl	end\n\
+\t\.type	end, @function\n\
+end:\n\
+\tnop" $BASE.s
+
+#Gets the first label in the .text.interrupt section. It will be used to set the mtvec CSR
+sri=$(grep -A 4 '.text.interrupt' $BASE.s | tail -n 1 | head -c -2)
+
 #Add call to main after first .text (it will be the at address 0 when compilation is finished)
-sed -i '0,/.text/!b;//a\\tj main' $BASE.s
+sed -i '0,/.text/!b;//a\\tla t0,'$sri'\n\tcsrw mtvec,t0\n\tli t0,0x00000AAA\n\tcsrw mie,t0\n\tcall main\n\tj end' $BASE.s
 
 $RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -T $LAYOUT -nostdlib -o $BASE.elf $BASE.s
 
 # Extract machine code and data (Logisim)
-$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --reverse-bytes=4 --only-section=.text $BASE.elf $BASE.text
+$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --reverse-bytes=4 --only-section=.text --only-section=.text.interrupt --only-section=.text.end $BASE.elf $BASE.text
 $RISCV/bin/riscv64-unknown-elf-objcopy -O binary --reverse-bytes=4 --only-section=.sdata $BASE.elf $BASE.data
 
 # Disassemble machine code
-$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --only-section=.text $BASE.elf $BASE.bin
+$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --only-section=.text.interrupt --only-section=.text --only-section=.text.end $BASE.elf $BASE.bin
 $RISCV/bin/riscv64-unknown-elf-objdump -D -b binary -M numeric -m riscv:rv64 $BASE.bin > $BASE.dis
 
 chmod -x $BASE.elf $BASE.text $BASE.data $BASE.bin $BASE.dis
