@@ -41,7 +41,7 @@ public class RiscvALUDecoder extends ProgrammableComponent
           new Port(x0 + 7*spacing, y0,             Port.INPUT,  2), // ALUOP
           new Port(x0,             y0 + 2*spacing, Port.INPUT,  1), // OP
           new Port(x0,             y0 + 4*spacing, Port.INPUT,  3), // FUNCT3
-          new Port(x0,             y0 + 6*spacing, Port.INPUT,  1), // FUNCT7
+          new Port(x0,             y0 + 6*spacing, Port.INPUT,  7), // FUNCT7
           new Port(x1,             y0 + 4*spacing, Port.OUTPUT, 3)  // ALUCONTROL
        });
 

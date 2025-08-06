@@ -218,9 +218,9 @@
       <a name="to" val="14"/>
     </comp>
     <comp lib="0" loc="(850,160)" name="Tap">
-      <a name="from" val="30"/>
+      <a name="from" val="25"/>
       <a name="incoming" val="32"/>
-      <a name="to" val="30"/>
+      <a name="to" val="31"/>
     </comp>
     <comp lib="0" loc="(850,420)" name="Tap">
       <a name="from" val="15"/>
@@ -528,42 +528,9 @@ state.setPort(nameToId.get("WriteMie"), WriteMieVal, 1);</a>
       <a name="addrWidth" val="32"/>
       <a name="appearance" val="classic"/>
       <a name="contents">addr/data: 32 8
-0 0 2 97 f c2 82 93
-30 52 90 73 0 0 12 b7
-aa a2 82 93 30 42 90 73
-6 0 0 ef f c0 0 6f
-fe 1 1 13 0 81 2e 23
-2 1 4 13 fe a4 26 23
-fe b4 24 23 fe c4 27 83
-fe 84 27 3 0 e7 a0 23
-0 0 0 13 1 c1 24 3
-2 1 1 13 0 0 80 67
-fe 1 1 13 0 81 2e 23
-2 1 4 13 fe a4 26 23
-fe c4 27 83 0 7 a7 83
-0 7 85 13 1 c1 24 3
-2 1 1 13 0 0 80 67
-fe 1 1 13 0 11 2e 23
-0 81 2c 23 2 1 4 13
-0 40 27 83 0 10 5 93
-0 7 85 13 f8 df f0 ef
-0 0 27 83 0 10 5 93
-0 7 85 13 f7 df f0 ef
-0 0 0 13 0 80 27 83
-0 7 85 13 f9 df f0 ef
-0 5 7 13 0 20 7 93
-fe f7 16 e3 0 40 27 83
-0 7 85 13 f8 5f f0 ef
-fe a4 26 23 0 c0 27 83
-fe c4 25 83 0 7 85 13
-f4 1f f0 ef 0 0 7 93
-0 7 85 13 1 c1 20 83
-1 81 24 3 2 1 1 13
-0 0 80 67 ff 1 1 13
-0 81 26 23 1 1 4 13
-0 0 0 13 0 c1 24 3
-1 1 1 13 30 20 0 73
-0 0 0 13
+0 0 22 83 0 40 23 3
+2 62 83 b3 2 62 c3 b3
+40 73 83 b3
 </a>
       <a name="line" val="quad"/>
     </comp>
@@ -1059,6 +1026,7 @@ f4 1f f0 ef 0 0 7 93
     <comp lib="0" loc="(270,700)" name="Pin">
       <a name="appearance" val="classic"/>
       <a name="label" val="Funct7"/>
+      <a name="width" val="7"/>
     </comp>
     <comp lib="0" loc="(280,670)" name="Pin">
       <a name="appearance" val="classic"/>
@@ -1270,13 +1238,17 @@ if (ALUOp == 0x0) { // ALUOp = 00 for lw/sw
    ans = 0b001; // ALUControl = 001 (subtract) 
 } else if (ALUOp == 0x2) { // ALUOp = 10 for R-type instructions
    if (Funct3 == 0x0) { 
-      if(Op == 0x1 &amp;&amp; Funct7 == 0x1) { 
+      if(Op == 0x1 &amp;&amp; Funct7 == 0x20) { 
          ans = 0b001; // ALUControl = 001 (subtract)
+      }else if(Funct7 == 0x1){
+	 ans = 0b100; // ALUControl = 100 (multiply)
       } else {
          ans = 0b000; // ALUControl = 000 (add)
       }  
    } else if (Funct3 == 0x2) {   
-      ans = 0b101; // ALUControl = 101 (set less than)   
+      ans = 0b110; // ALUControl = 110 (set less than)
+   } else if (Funct3 == 0x4 &amp;&amp; Funct7 == 0x1){
+      ans = 0b101; // ALUControl = 101 (divide)
    } else if (Funct3 == 0x6) {   
       ans = 0b011; // ALUControl = 011 (or)   
    } else if (Funct3 == 0x7) {   

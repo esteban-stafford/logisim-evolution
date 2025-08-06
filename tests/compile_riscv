@@ -69,7 +69,7 @@ EOF
 # Compile and link
 #$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -c -S -o $BASE.s $SRC
 #$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -c -o $BASE.o $SRC
-$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -T $LAYOUT -nostdlib -S -o $BASE.s $SRC
+$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32im -mabi=ilp32 -T $LAYOUT -nostdlib -S -o $BASE.s $SRC
 
 #Adds a new end section and label at the end of the code to jump to after termination of the program.
 #line_number=$(($(wc -l < $BASE.s) - 1))
