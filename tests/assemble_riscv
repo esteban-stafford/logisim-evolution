@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#RISCV=/opt/riscv64-elf-gcc
+
+if [ ! -d "$RISCV" ]; then
+    echo "RISCV toolchain not found: $RISCV"
+    exit 1
+fi
+
+SRC=$1
+
+if [ -z "$SRC" ]; then
+    echo "Usage: $0 <source>"
+    exit 1
+fi
+
+if [ ! -f "$SRC" ]; then
+    echo "File not found: $SRC"
+    exit 1
+fi
+
+if [ "${SRC##*.}" != "s" ]; then
+    echo "Invalid file extension: $SRC"
+    exit 1
+fi
+
+BASE=${SRC%.s}
+LAYOUT=$(dirname $SRC)/logisim.ld
+
+cat > $LAYOUT <<EOF
+MEMORY
+{
+  TEXT (rx) : ORIGIN = 0x80000000, LENGTH = 128M
+  DATA (rw) : ORIGIN = 0x00000000, LENGTH = 128M
+}
+
+SECTIONS
+{
+  .text : {
+    *(.text)
+  } > TEXT
+
+  .data : {
+    *(.data)
+    *(.bss)
+  } > DATA
+  .sdata : {
+    __global_pointer$ = . + 0x800;
+    *(.sdata .sdata.*)
+  }
+  _edata = .;
+  .bss : {
+    *(.bss .bss.*)
+  }
+  _end = .;
+}
+EOF
+
+# Assemble and link
+$RISCV/bin/riscv64-unknown-elf-gcc -march=rv32im -mabi=ilp32 -T $LAYOUT -nostdlib -o $BASE.elf $SRC
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Extract machine code and data (Logisim)
+$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --reverse-bytes=4 --only-section=.text $BASE.elf $BASE.text
+$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --reverse-bytes=4 --only-section=.data $BASE.elf $BASE.data
+
+# Disassemble machine code
+$RISCV/bin/riscv64-unknown-elf-objcopy -O binary --only-section=.text $BASE.elf $BASE.bin
+$RISCV/bin/riscv64-unknown-elf-objdump -D -b binary -M numeric -m riscv:rv64 $BASE.bin > $BASE.dis
+
+chmod -x $BASE.elf $BASE.text $BASE.data $BASE.bin $BASE.dis
+
