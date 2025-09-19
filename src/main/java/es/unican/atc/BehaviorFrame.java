@@ -33,11 +33,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JComponent;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Font;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.Element;
 
 public class BehaviorFrame extends LFrame.SubWindow {
   private static final long serialVersionUID = 1L;
@@ -49,7 +55,9 @@ public class BehaviorFrame extends LFrame.SubWindow {
   private final JButton save = new JButton();
   private final JButton close = new JButton();
   private final Instance instance;
-  private final JTextArea display;
+  private final JTextArea display, console;
+
+  private final JComponent lineNumbers;
 
   public BehaviorFrame(Project project, Instance instance, ProgrammableComponent model) {
     super(project);
@@ -59,13 +67,14 @@ public class BehaviorFrame extends LFrame.SubWindow {
     this.instance = instance;
 
     final var buttonPanel = new JPanel();
+
     //buttonPanel.add(open);
-    buttonPanel.add(save);
-    //buttonPanel.add(close);
     //open.addActionListener(myListener);
+
+    buttonPanel.add(save);
+    buttonPanel.add(close);
     save.addActionListener(myListener);
     close.addActionListener(myListener);
-
 
     Container contents = getContentPane();
 
@@ -85,16 +94,102 @@ public class BehaviorFrame extends LFrame.SubWindow {
 
     // create the middle panel components
 
-    display = new JTextArea ( 16, 58 );
-    display.setText(model.getBehavior().getAsString());
+    display = new JTextArea ( 32, 96 );
+    console = new JTextArea ( 8, 96 );
+    Font font = new Font(Font.MONOSPACED, Font.BOLD, 12);
+    display.setFont(font);
+    console.setFont(font);
+    console.setBackground(Color.BLACK);
+    console.setForeground(Color.WHITE);
+
+    JScrollPane scroll = new JScrollPane ();
+
+
+    lineNumbers = new JComponent() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            // Use the font and metrics from the text area
+            FontMetrics fm = display.getFontMetrics(display.getFont());
+            int lineHeight = fm.getHeight();
+            int ascent = fm.getAscent();
+
+            // Set background color
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            g.setColor(Color.BLACK);
+
+            // Get the visible area of the component
+            Rectangle clip = g.getClipBounds();
+        
+            // Determine the first and last line numbers to draw
+            int startLine = clip.y / lineHeight;
+            int endLine = (clip.y + clip.height) / lineHeight + 1;
+            
+            Element root = display.getDocument().getDefaultRootElement();
+            int maxLines = root.getElementCount();
+            endLine = Math.min(endLine, maxLines);
+
+            // Draw the line numbers
+            for (int i = startLine; i < endLine; i++) {
+                String num = Integer.toString(i + 1);
+                int y = (i * lineHeight) + ascent;
+                int x = getWidth() - fm.stringWidth(num) - 5; // 5px padding
+                g.drawString(num, x, y);
+            }
+        }
+    };
+
+    lineNumbers.setFont(display.getFont());
+
+    // This listener now updates the size of the line number component
+    // whenever the text changes, which is the key to fixing the scrolling.
+    display.getDocument().addDocumentListener(new DocumentListener() {
+      private void updateLineNumbers() {
+          try {
+              Element root = display.getDocument().getDefaultRootElement();
+              int lineCount = root.getElementCount();
+              int digits = Math.max(String.valueOf(lineCount).length(), 1);
+
+              // Calculate the required width based on the number of digits
+              FontMetrics fm = lineNumbers.getFontMetrics(lineNumbers.getFont());
+              int width = 10 + digits * fm.charWidth('0'); // 10px padding
+
+              // *** THIS IS THE CRITICAL PART ***
+              // Set the preferred size. The height must match the JTextArea's preferred height.
+              Dimension preferredSize = new Dimension(width, display.getPreferredSize().height);
+              lineNumbers.setPreferredSize(preferredSize);
+
+              // Re-layout the scroll pane and repaint
+              SwingUtilities.invokeLater(() -> {
+                  scroll.setRowHeaderView(lineNumbers); // Re-set the view to apply size change
+                  lineNumbers.repaint();
+              });
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+      }
+
+      @Override public void changedUpdate(DocumentEvent e) { updateLineNumbers(); }
+      @Override public void insertUpdate(DocumentEvent e) { updateLineNumbers(); }
+      @Override public void removeUpdate(DocumentEvent e) { updateLineNumbers(); }
+    });
+
     display.setEditable ( true );
-    JScrollPane scroll = new JScrollPane ( display );
+
+    scroll.getViewport().add(display);
+    scroll.setRowHeaderView(lineNumbers);
+    scroll.getViewport().addChangeListener(e -> lineNumbers.repaint());
+
     scroll.setVerticalScrollBarPolicy ( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
     
-    contents.add(scroll, BorderLayout.CENTER);
+    contents.add(scroll, BorderLayout.NORTH);
+    contents.add(new JScrollPane(console), BorderLayout.CENTER);
     contents.add(buttonPanel, BorderLayout.SOUTH);
     pack();
 
+    display.setText(model.getBehavior().getAsString());
+    display.setCaretPosition(0);
   }
 
   public void closeAndDispose() {
@@ -169,7 +264,16 @@ public class BehaviorFrame extends LFrame.SubWindow {
         HexFile.open((MemContents) model, BehaviorFrame.this, project, instance);
         */
       if (src == save) {
-        model.newBehavior(display.getText(), instance);
+        console.setText("");
+        String error=model.newBehavior(display.getText(), instance);
+        if(error==null)
+        {
+          console.setText("The behavior has no errors.");
+        }
+        else
+        {
+          console.setText(error+"The new behavior was not saved.");
+        }
         //HexFile.save((MemContents) model, BehaviorFrame.this, project, instance);
       } else if (src == close) {
         WindowEvent e = new WindowEvent(BehaviorFrame.this, WindowEvent.WINDOW_CLOSING);
