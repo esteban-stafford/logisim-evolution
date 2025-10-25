@@ -96,9 +96,7 @@ class RegisterFile32 extends InstanceFactory {
       BitWidth WIDTH = BitWidth.create(32);
 
       if (state.getPortValue(CLR) == Value.TRUE) {
-         System.out.println("Clear");
          if(clearType.equals(ZERO)) {
-            System.out.println("ZERO");
             for (int i = 0; i < NUM_REGISTERS; i++) {
                data.regs[i] = Value.createKnown(32, 0);
             }
@@ -172,9 +170,9 @@ class RegisterFile32 extends InstanceFactory {
          long v = data.regs[i].toLongValue();
          String s = (data.regs[i].isFullyDefined() ? StringUtil.toHexString(REGISTER_WIDTH, v) : "?");
          GraphicsUtil.drawText(g, font, s,
-         bounds.getX() + 80,    
-         bounds.getY() + 25 + i*10,
-         GraphicsUtil.H_CENTER, GraphicsUtil.V_CENTER);
+                               bounds.getX() + 80,    
+                               bounds.getY() + 25 + i*10,
+                               GraphicsUtil.H_CENTER, GraphicsUtil.V_CENTER);
       } 
    }
 }
