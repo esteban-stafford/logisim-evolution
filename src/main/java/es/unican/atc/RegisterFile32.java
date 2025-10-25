@@ -96,7 +96,9 @@ class RegisterFile32 extends InstanceFactory {
       BitWidth WIDTH = BitWidth.create(32);
 
       if (state.getPortValue(CLR) == Value.TRUE) {
-         if(clearType.equals(CLEAR)) {
+         System.out.println("Clear");
+         if(clearType.equals(ZERO)) {
+            System.out.println("ZERO");
             for (int i = 0; i < NUM_REGISTERS; i++) {
                data.regs[i] = Value.createKnown(32, 0);
             }
