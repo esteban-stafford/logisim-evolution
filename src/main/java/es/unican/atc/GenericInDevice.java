@@ -250,8 +250,8 @@ class GenericInDevice extends InstanceFactory{
       painter.drawPort(INTERRUPT, labels[INTERRUPT], Direction.SOUTH);
       painter.drawPort(INTERRUPT_SERVED, labels[INTERRUPT_SERVED], Direction.SOUTH);
 
-      painter.drawPort(CLEAR, labels[CLEAR], Direction.WEST);
-      painter.drawPort(CLOCK, labels[CLOCK], Direction.WEST);
+      painter.drawPort(CLEAR, labels[CLEAR], Direction.EAST);
+      painter.drawPort(CLOCK, labels[CLOCK], Direction.EAST);
 
       Graphics g = painter.getGraphics();
 
