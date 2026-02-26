@@ -95,12 +95,6 @@ public class RiscvSE_J extends InstanceFactory {
             long bit_20     = (imm >> 13) & 1;      
             long bits_30_21  = (imm >> 14) & 0x3FF; 
            
-            System.out.println(Long.toBinaryString(imm));
-            System.out.println(Long.toBinaryString(bit_31));
-            System.out.println(Long.toBinaryString(bits_19_12));
-            System.out.println(Long.toBinaryString(bit_20));
-            System.out.println(Long.toBinaryString(bits_30_21));
-
             // Arrange them in order: [20], [10:1], [11], [19:12]
             signExtImm= bits_30_21 << 1|    // Bits 19:12 at position 0
                        (bit_20 << 11) |        // Bit 11 at position 8
@@ -109,7 +103,6 @@ public class RiscvSE_J extends InstanceFactory {
             
             if ((signExtImm & 0x100000) != 0) {  // Sign extend
                 signExtImm |= 0xFFE00000;
-                System.out.println("Extendiendo!");
             }
             break;
       }

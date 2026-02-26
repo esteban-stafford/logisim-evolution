@@ -115,20 +115,20 @@ public class Plic extends ProgrammableComponent
     @Override
     public void paintInstance(InstancePainter painter) {
         painter.drawRectangle(painter.getBounds(), "");
-        painter.drawPort(INT0, labels[INT0], Direction.WEST);
-        painter.drawPort(INT0S, labels[INT0S], Direction.WEST);
-        painter.drawPort(INT1, labels[INT1], Direction.WEST);
-        painter.drawPort(INT1S, labels[INT1S], Direction.WEST);
-        painter.drawPort(INT2, labels[INT2], Direction.WEST);
-        painter.drawPort(INT2S, labels[INT2S], Direction.WEST);
-        painter.drawPort(INT3, labels[INT3], Direction.WEST);
-        painter.drawPort(INT3S, labels[INT3S], Direction.WEST);
-        painter.drawPort(CAUSE, labels[CAUSE], Direction.EAST);
-        painter.drawPort(READMIE, labels[READMIE], Direction.EAST);
-        painter.drawPort(WRITEMIE, labels[WRITEMIE], Direction.EAST);
-        painter.drawPort(ROUTINEADDR, labels[ROUTINEADDR], Direction.EAST);
-        painter.drawPort(READMIP, labels[READMIP], Direction.SOUTH);
-        painter.drawPort(WRITEMIP, labels[WRITEMIP], Direction.SOUTH);
+        painter.drawPort(INT0, labels[INT0], Direction.EAST);
+        painter.drawPort(INT0S, labels[INT0S], Direction.EAST);
+        painter.drawPort(INT1, labels[INT1], Direction.EAST);
+        painter.drawPort(INT1S, labels[INT1S], Direction.EAST);
+        painter.drawPort(INT2, labels[INT2], Direction.EAST);
+        painter.drawPort(INT2S, labels[INT2S], Direction.EAST);
+        painter.drawPort(INT3, labels[INT3], Direction.EAST);
+        painter.drawPort(INT3S, labels[INT3S], Direction.EAST);
+        painter.drawPort(CAUSE, labels[CAUSE], Direction.WEST);
+        painter.drawPort(READMIE, labels[READMIE], Direction.WEST);
+        painter.drawPort(WRITEMIE, labels[WRITEMIE], Direction.WEST);
+        painter.drawPort(ROUTINEADDR, labels[ROUTINEADDR], Direction.WEST);
+        painter.drawPort(READMIP, labels[READMIP], Direction.WEST);
+        painter.drawPort(WRITEMIP, labels[WRITEMIP], Direction.WEST);
         painter.drawPort(HANDLEI, labels[HANDLEI], Direction.SOUTH);
         painter.drawPort(MRET, labels[MRET], Direction.NORTH);
     }

@@ -75,15 +75,15 @@ class BusEndpoint extends InstanceFactory {
       int y0 = bounds.getY();
       int y1 = y0 + bounds.getHeight();
       Port[] ports = new Port[labels.length];
-      ports[WRITE_ENABLE_OUT]  = new Port(x0 + 3 * spacing, y0, Port.OUTPUT, 1);
+      ports[WRITE_ENABLE_OUT]  = new Port(x0 + 2 * spacing, y0, Port.OUTPUT, 1);
       ports[ADDR_OUT]  = new Port(x0 + 6 * spacing, y0, Port.OUTPUT, 32);
-      ports[DATA_OUT]  = new Port(x0 + 9 * spacing, y0, Port.OUTPUT, 32);
-      ports[DATA_IN] = new Port(x0 + 12 *spacing, y0, Port.INPUT, 32);
+      ports[DATA_OUT]  = new Port(x0 + 10 * spacing, y0, Port.OUTPUT, 32);
+      ports[DATA_IN] = new Port(x0 + 14 *spacing, y0, Port.INPUT, 32);
 
-      ports[WRITE_ENABLE_DEV] = new Port(x0 + 3*spacing, y1, Port.INPUT, 1);
+      ports[WRITE_ENABLE_DEV] = new Port(x0 + 2*spacing, y1, Port.INPUT, 1);
       ports[DEV_ADDR] = new Port(x0 + 6*spacing, y1, Port.INPUT, 32);
-      ports[DEV_IN] = new Port(x0 + 9*spacing, y1, Port.INPUT, 32);
-      ports[DEV_OUT] = new Port(x0 + 12*spacing, y1, Port.OUTPUT, 32);
+      ports[DEV_IN] = new Port(x0 + 10*spacing, y1, Port.INPUT, 32);
+      ports[DEV_OUT] = new Port(x0 + 14*spacing, y1, Port.OUTPUT, 32);
 
       ports[BUS_REQ] = new Port(x0, y0 + 2*spacing, Port.OUTPUT, 1);
       ports[BUS_GRANT] = new Port(x0, y0 + 4*spacing, Port.INPUT, 1);
@@ -134,19 +134,19 @@ class BusEndpoint extends InstanceFactory {
    public void paintInstance(InstancePainter painter) {
       Bounds bounds = painter.getBounds();
       painter.drawRectangle(bounds, "");
-      painter.drawPort(DEV_ADDR, labels[DEV_ADDR], Direction.NORTH);
+      painter.drawPort(DEV_ADDR, labels[DEV_ADDR], Direction.SOUTH);
       painter.drawPort(DATA_IN, labels[DATA_IN], Direction.NORTH);
       painter.drawPort(DATA_OUT, labels[DATA_OUT], Direction.NORTH);
       painter.drawPort(WRITE_ENABLE_OUT, labels[WRITE_ENABLE_OUT], Direction.NORTH);
 
-      painter.drawPort(ADDR_OUT, labels[ADDR_OUT], Direction.SOUTH);
+      painter.drawPort(ADDR_OUT, labels[ADDR_OUT], Direction.NORTH);
       painter.drawPort(DEV_IN, labels[DEV_IN], Direction.SOUTH);
       painter.drawPort(DEV_OUT, labels[DEV_OUT], Direction.SOUTH);
 
-      painter.drawPort(BUS_REQ, labels[BUS_REQ], Direction.WEST);
-      painter.drawPort(BUS_GRANT, labels[BUS_GRANT], Direction.WEST);
+      painter.drawPort(BUS_REQ, labels[BUS_REQ], Direction.EAST);
+      painter.drawPort(BUS_GRANT, labels[BUS_GRANT], Direction.EAST);
       
-      painter.drawPort(WRITE_ENABLE_DEV, labels[WRITE_ENABLE_DEV], Direction.NORTH);
+      painter.drawPort(WRITE_ENABLE_DEV, labels[WRITE_ENABLE_DEV], Direction.SOUTH);
 
       Graphics g = painter.getGraphics();
 
