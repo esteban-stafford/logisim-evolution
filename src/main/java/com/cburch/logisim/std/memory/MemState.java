@@ -56,6 +56,16 @@ class MemState implements InstanceData, Cloneable, HexModelListener {
     addrBlockSize = Math.min(52,((fm.stringWidth(StringUtil.toHexString(addrBits, 0)) + 9) / 10) * 10);
     dataSize = fm.stringWidth(StringUtil.toHexString(dataBits, 0) + " ");
     spaceSize = fm.stringWidth(" ");
+
+    // Stabilize: snap usable width down to a whole number of data cells
+    int usableWidth = DisplayWidth - addrBlockSize;
+    if (usableWidth < dataSize) usableWidth = dataSize;
+    
+    int snap = 4*dataSize; // or (4 * dataSize)
+    usableWidth = (usableWidth / snap) * snap;
+
+    nrDataSymbolsEachLine = usableWidth / dataSize;
+
     nrDataSymbolsEachLine = (DisplayWidth - addrBlockSize) / dataSize;
     if (nrDataSymbolsEachLine == 0) nrDataSymbolsEachLine++;
     if (nrDataSymbolsEachLine > 3 && nrDataSymbolsEachLine % 2 != 0) nrDataSymbolsEachLine--;
