@@ -226,7 +226,7 @@ public class HdlContentEditor extends JDialog implements JInputDialog {
     validate.addActionListener(frameListener);
 
     editor = new RSyntaxTextArea(ROWS, COLUMNS);
-    ((RSyntaxDocument) editor.getDocument()).setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_VHDL);
+    ((RSyntaxDocument) editor.getDocument()).setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
     editor.setCodeFoldingEnabled(true);
     editor.setAntiAliasingEnabled(true);
     editor.getDocument().addDocumentListener(editorListener);

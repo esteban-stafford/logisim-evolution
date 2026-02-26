@@ -173,7 +173,7 @@ public class HdlContentView extends JPanel
 
     editor = new RSyntaxTextArea(ROWS, COLUMNS);
     if (lang.equals("vhdl")) {
-      ((RSyntaxDocument) editor.getDocument()).setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_VHDL);
+      ((RSyntaxDocument) editor.getDocument()).setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
     } else {
       editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_DELPHI);
     }
