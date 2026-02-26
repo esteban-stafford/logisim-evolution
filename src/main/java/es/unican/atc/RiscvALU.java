@@ -24,10 +24,22 @@ public class RiscvALU extends InstanceFactory {
     public static final int Z = 3;
     public static final int C = 4;
 
+    
     public RiscvALU() {
         super("RiscvALU");
-	int width = 60;
-	int height = 100;
+        create();
+    }
+
+  
+    
+    public RiscvALU(String name) {
+        super(name);
+        create();
+    }
+  
+    private void create(){
+	      int width = 60;
+	      int height = 100;
         Bounds bounds = Bounds.create(-width/2, -height/2, width, height);
         setOffsetBounds(bounds);
         int x0 = bounds.getX();
@@ -43,7 +55,8 @@ public class RiscvALU extends InstanceFactory {
 		new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.25), Port.OUTPUT, 1), // Z
 		new Port(interp(xp[1],xp[2],0.5), interp(yp[1],yp[2],0.5), Port.OUTPUT, 32) }); // C
     }
-    private int interp(int a, int b, double t) {
+
+    protected int interp(int a, int b, double t) {
 	    return (int)Math.round((double)a*(1.0-t)+(double)b*t);
     }
 
