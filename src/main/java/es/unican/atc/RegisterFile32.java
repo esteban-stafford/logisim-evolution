@@ -16,10 +16,12 @@ import com.cburch.logisim.data.Value;
 import com.cburch.logisim.instance.InstanceFactory;
 import com.cburch.logisim.instance.InstancePainter;
 import com.cburch.logisim.instance.InstanceState;
+import com.cburch.logisim.instance.InstancePoker;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.StdAttr;
 import com.cburch.logisim.util.GraphicsUtil;
 import com.cburch.logisim.util.StringUtil;
+import java.awt.event.MouseEvent;
 
 class RegisterFile32 extends InstanceFactory {
 
@@ -38,6 +40,7 @@ class RegisterFile32 extends InstanceFactory {
 
    public static final int NUM_REGISTERS = 32;
    public static final int REGISTER_WIDTH = 32;
+   public static final int DISPLAYED_REGISTERS = 16;
 
    /*public static final Attribute<Boolean> CLEAR_TO_ZERO =
       Attributes.forBoolean("clearToZero", S.getter("Clear to Zero"));
@@ -53,6 +56,23 @@ class RegisterFile32 extends InstanceFactory {
           "clear",
           S.getter("Clear"),
           new AttributeOption[] {ZERO, DUMMY, BAREMETAL});
+  
+  public static class Poker extends InstancePoker {
+
+    @Override
+    public void mousePressed(InstanceState state, MouseEvent e) {
+      final var data = (RegisterData) state.getData();
+      data.setDisplayedRegisterBase((data.getDisplayedRegisterBase()+DISPLAYED_REGISTERS) % NUM_REGISTERS);
+      state.getInstance().fireInvalidated();
+    }
+
+
+    @Override
+    public void mouseReleased(InstanceState state, MouseEvent e) {
+    
+    }
+
+  }
 
    RegisterFile32() {
       super("RegisterFile32", new SimpleStringGetter("32x32 Register File"));
@@ -86,6 +106,7 @@ class RegisterFile32 extends InstanceFactory {
       ports[RD1] = new Port(x1, y0 + 2*spacing, Port.OUTPUT, REGISTER_WIDTH);
       ports[RD2] = new Port(x1, y0 + 8*spacing, Port.OUTPUT, REGISTER_WIDTH);
       setPorts(ports);
+      setInstancePoker(Poker.class);
    }
 
    @Override
@@ -155,24 +176,31 @@ class RegisterFile32 extends InstanceFactory {
 
       Font font = g.getFont().deriveFont(9f);
 
-      for (int i = 0; i < NUM_REGISTERS/2; i++) {
+      RegisterData data = RegisterData.get(painter, NUM_REGISTERS, 32);
+      int registerBase=data.getDisplayedRegisterBase();
+      for (int i = registerBase; i < registerBase+DISPLAYED_REGISTERS; i++) {
          GraphicsUtil.drawText(g, font, "x"+i,
             bounds.getX() + 50,
-            bounds.getY() + 25 + i*10,
+            bounds.getY() + 25 + (i-registerBase)*10,
             GraphicsUtil.H_RIGHT, GraphicsUtil.V_CENTER);
       }
       if (!painter.getShowState()) {
          return;
       }
 
-      RegisterData data = RegisterData.get(painter, NUM_REGISTERS, 32);
-      for (int i = 0; i < NUM_REGISTERS/2; i++) {
+      for (int i = registerBase; i < registerBase+DISPLAYED_REGISTERS; i++) {
          long v = data.regs[i].toLongValue();
          String s = (data.regs[i].isFullyDefined() ? StringUtil.toHexString(REGISTER_WIDTH, v) : "?");
          GraphicsUtil.drawText(g, font, s,
                                bounds.getX() + 80,    
-                               bounds.getY() + 25 + i*10,
+                               bounds.getY() + 25 + (i-registerBase)*10,
                                GraphicsUtil.H_CENTER, GraphicsUtil.V_CENTER);
-      } 
+      }
+      String page=(registerBase/DISPLAYED_REGISTERS+1)+"/"+(NUM_REGISTERS/DISPLAYED_REGISTERS); 
+      GraphicsUtil.drawText(g, font.deriveFont(java.awt.Font.BOLD), page,
+                             bounds.getRight() - 20,    
+                             bounds.getBottom() - 10,
+                             GraphicsUtil.H_CENTER, GraphicsUtil.V_CENTER);
+      
    }
 }

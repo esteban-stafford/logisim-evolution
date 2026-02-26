@@ -12,6 +12,9 @@ public class RegisterData implements InstanceData, Cloneable {
     /** Retrieves the state associated with this register in the circuit state,
      * generating the state if necessary.
      */
+   
+    private int registerBase = 0;
+
     public static RegisterData get(InstanceState state, int length, int width) {
         RegisterData ret = (RegisterData) state.getData();
         if (ret == null) {
@@ -70,5 +73,15 @@ public class RegisterData implements InstanceData, Cloneable {
         else {
             return oldClock == Value.FALSE && newClock == Value.TRUE;
         }
+    }
+
+    public int getDisplayedRegisterBase()
+    {
+        return registerBase;
+    }
+
+    public void setDisplayedRegisterBase(int val)
+    {
+        registerBase=val;
     }
 }
