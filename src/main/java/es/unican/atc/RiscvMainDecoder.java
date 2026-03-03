@@ -5,6 +5,10 @@ import com.cburch.logisim.data.Direction;
 import java.util.HashMap;
 import com.cburch.logisim.instance.Port;
 import com.cburch.logisim.instance.InstancePainter;
+import com.cburch.logisim.data.Attribute;
+import com.cburch.logisim.data.AttributeOption;
+import com.cburch.logisim.data.Attributes;
+import static com.cburch.logisim.std.Strings.S;
 
 public class RiscvMainDecoder extends ProgrammableComponent
 {
@@ -62,8 +66,20 @@ public class RiscvMainDecoder extends ProgrammableComponent
     public static final int REGWRITE = 7;
     public static final int O1 = 8;
     public static final int ALUOP = 9;
+    public static final int STALL = 10;
     private static String[] labels = new String[] { "Op", "Funct3", "Branch", "ResultSrc",
-       "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "O1", "ALUOp" };
+       "MemWrite", "ALUSrc", "ImmSrc", "RegWrite", "O1", "ALUOp", "Stall" };
+
+    public static final AttributeOption STALL_OFF = new AttributeOption("off", S.getter("Disabled"));
+    public static final AttributeOption STALL_ON = new AttributeOption("on", S.getter("Enabled"));
+
+    public static final Attribute<AttributeOption> STALL_PORT =
+      Attributes.forOption(
+        "stallPort",
+        S.getter("Stall port"),
+        new AttributeOption[] { STALL_OFF, STALL_ON }
+    );
+
 
     protected RiscvMainDecoder()
     {
@@ -87,7 +103,8 @@ public class RiscvMainDecoder extends ProgrammableComponent
           new Port(x1,             y0 + 5*spacing, Port.OUTPUT, 2), // ImmSrc (2-bit wide)
           new Port(x1,             y0 + 6*spacing, Port.OUTPUT, 1), // RegWrite
           new Port(x1,             y0 + 8*spacing, Port.OUTPUT, 1), // O1
-          new Port(x0 + 7*spacing, y1,             Port.OUTPUT, 2)  // ALUOp (2-bit wide)
+          new Port(x0 + 7*spacing, y1,             Port.OUTPUT, 2), // ALUOp (2-bit wide)
+          new Port(x0 + 3*spacing, y1,             Port.OUTPUT, 5)  // Stall
        });
 
        portNameToId=new HashMap<String, Integer>() {{
@@ -101,8 +118,30 @@ public class RiscvMainDecoder extends ProgrammableComponent
           put("RegWrite", REGWRITE);
           put("ALUOp", ALUOP);
           put("O1", O1);
+          put("Stall", STALL);
        }};
+
+       setExtraAttributes(
+          new Attribute[] { ProgrammableComponent.behaviorAttr, STALL_PORT },
+          new Object[] { behaviorClassImplementationBody, STALL_OFF }
+       );
     }
+
+    /*private void updatePorts(Instance instance) {
+        var spacing = 10;
+        var width = 14 * spacing;
+        var baseHeight = 12 * spacing;
+
+        boolean latEnabled = instance.getAttributeValue(STALL_PORT) == STALL_ON;
+        
+        Port[] ports=getPorts();
+        if(latEnabled){
+          ports[STALL]=new Port(x0 + 3*spacing, y1, Port.OUTPUT, 2);
+        }else{
+          ports[STALL]=null;
+        }
+        setPorts(ports);
+    }*/
 
     @Override
     public void paintInstance(InstancePainter painter) {
@@ -117,5 +156,10 @@ public class RiscvMainDecoder extends ProgrammableComponent
         painter.drawPort(REGWRITE, labels[REGWRITE], Direction.WEST);
         painter.drawPort(O1, labels[O1], Direction.WEST);
         painter.drawPort(ALUOP, labels[ALUOP], Direction.SOUTH);
+        
+        var opt = painter.getAttributeValue(STALL_PORT);
+        if (opt == STALL_ON) {
+          painter.drawPort(STALL, labels[STALL], Direction.SOUTH);
+        }
     }
 }

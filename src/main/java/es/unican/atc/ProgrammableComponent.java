@@ -53,6 +53,10 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.net.URL; 
 
+import java.util.Map;
+import java.util.Objects;
+
+import com.cburch.logisim.data.AttributeListener;
 
 public class ProgrammableComponent extends InstanceFactory implements AttributeListener
 {
@@ -62,39 +66,53 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
         private BehaviorAttribute behaviorBodyAttr;
         String behavior;
 
+        private final Map<Attribute<?>, Object> extraValues = new HashMap<>();
         
         public BehaviorAttributes(BehaviorAttribute b){
             behaviorBodyAttr = b;
+            for (int i = 0; i < extraAttrs.length; i++) {
+                extraValues.put(extraAttrs[i], extraDefaults[i]);
+            }
+        }
+
+        @Override
+        public <V> void setValue(Attribute<V> attr, V value) {
+            if (attr == behaviorBodyAttr) {
+                behavior = (String) value;
+                return;
+            }
+
+            // Store any other attribute value (extra attributes)
+            extraValues.put(attr, value);
+            fireAttributeValueChanged(attr, value, null);
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public <V> V getValue(Attribute<V> attr) {
-            V ret=null;
-            if (attr == behaviorBodyAttr)
-            {
-                ret=(V)behavior;
+            if (attr == behaviorBodyAttr) {
+                return (V) behavior;
             }
-            return ret;
+            return (V) extraValues.get(attr);
         }
 
         @Override
         public List<Attribute<?>> getAttributes() {
-            return List.of(behaviorBodyAttr);
+            final var list = new ArrayList<Attribute<?>>(1 + extraAttrs.length);
+            list.add(behaviorBodyAttr);
+            list.addAll(Arrays.asList(extraAttrs));
+            return list;
         }
-        
-        @Override
-        public <V> void setValue(Attribute<V> attr, V value) {
-            if (attr == behaviorBodyAttr) {
-                behavior=(String)value;
-            }
-        }
-  
+
+
         @Override
         protected void copyInto(AbstractAttributeSet dest) {
             BehaviorAttributes d=(BehaviorAttributes) dest;
             d.behavior=behavior;
+            d.extraValues.clear();
+            d.extraValues.putAll(extraValues);
         }
+
     }
 
     static class BehaviorAttribute extends Attribute<String> {
@@ -142,6 +160,19 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
     Path behaviorTempFolder=null;
 
     public static final BehaviorAttribute behaviorAttr = new BehaviorAttribute();
+
+    protected Attribute<?>[] extraAttrs = new Attribute<?>[0];
+    protected Object[] extraDefaults = new Object[0];
+
+    protected final void setExtraAttributes(Attribute<?>[] attrs, Object[] defaults) {
+        if (attrs == null) attrs = new Attribute<?>[0];
+        if (defaults == null) defaults = new Object[0];
+        if (attrs.length != defaults.length) {
+            throw new IllegalArgumentException("attrs/defaults length mismatch");
+        }
+        this.extraAttrs = attrs;
+        this.extraDefaults = defaults;
+    }
 
     private BehaviorAttributes attributes;
 
@@ -322,27 +353,29 @@ public class ProgrammableComponent extends InstanceFactory implements AttributeL
     }
 
     @Override
+    protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
+    }
+  
+
+    @Override
     public AttributeSet createAttributeSet() {
         attributes = new BehaviorAttributes(behaviorAttr);
-        //attributes.setValue(behaviorAttr, (Object)behavior.getAsString());
         attributes.addAttributeListener(this);
         return attributes;
     }
 
     @Override
-    protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
-    }
-  
-    @Override
     protected void configureNewInstance(Instance instance) {
         super.configureNewInstance(instance);
-        String b=(String)instance.getAttributeSet().getValue(behaviorAttr);
-        if(b==null)
-        {
-          b=behaviorClassImplementationBody;
+
+        // Ensure defaults exist for behavior
+        String b = (String) instance.getAttributeSet().getValue(behaviorAttr);
+        if (b == null) {
+            b = behaviorClassImplementationBody;
+            instance.getAttributeSet().setValue(behaviorAttr, b);
         }
+
         newBehavior(b, instance);
         instance.addAttributeListener();
     }
-
 }
