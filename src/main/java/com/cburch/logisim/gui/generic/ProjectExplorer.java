@@ -50,6 +50,13 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Code taken from Cornell's version of Logisim: http://www.cs.cornell.edu/courses/cs3410/2015sp/
@@ -65,11 +72,57 @@ public class ProjectExplorer extends JTree implements LocaleListener {
   private Listener listener = null;
   private Tool haloedTool = null;
 
+  private final ProjectExplorerModel baseModel;
+  private DefaultTreeModel filteredModel = null;
+  private String filterTextRaw = "";
+  private String filterTextNormalized = "";
+
+  public void setFilterText(String text) {
+    filterTextRaw = text == null ? "" : text;
+    final var norm = normalizeForSearch(filterTextRaw);
+    if (norm.equals(filterTextNormalized)) return;
+    filterTextNormalized = norm;
+
+    if (filterTextNormalized.isEmpty()) {
+      if (getModel() != baseModel) setModel(baseModel);
+      // ensure visuals refresh immediately
+      baseModel.fireStructureChanged();
+      revalidate();
+      repaint();
+      return;
+    }
+
+    rebuildFilteredModel(); // new helper
+  }
+
+  private void rebuildFilteredModel() {
+    final var root = baseModel.getRoot();
+    if (!(root instanceof DefaultMutableTreeNode baseRoot)) return;
+
+    final var filteredRoot = filterNodeRecursive(baseRoot, filterTextNormalized);
+    filteredModel =
+        new DefaultTreeModel(
+            filteredRoot != null ? filteredRoot : new DefaultMutableTreeNode("(no matches)"));
+    setModel(filteredModel);
+    expandAll();
+    repaint();
+  }
+  private static final Pattern DIACRITICS = Pattern.compile("\\p{M}+");
+
+  private static String normalizeForSearch(String s) {
+    if (s == null) return "";
+    var n = Normalizer.normalize(s, Normalizer.Form.NFD);
+    n = DIACRITICS.matcher(n).replaceAll("");
+    return n.toLowerCase(Locale.ROOT);
+  }
+
+
   public ProjectExplorer(Project proj, boolean showMouseTools) {
     super();
     this.proj = proj;
 
-    setModel(new ProjectExplorerModel(proj, this, showMouseTools));
+    baseModel = new ProjectExplorerModel(proj, this, showMouseTools);
+    setModel(baseModel);
     setRootVisible(true);
     addMouseListener(myListener);
     ToolTipManager.sharedInstance().registerComponent(this);
@@ -77,7 +130,13 @@ public class ProjectExplorer extends JTree implements LocaleListener {
     MySelectionModel selector = new MySelectionModel();
     selector.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     setSelectionModel(selector);
-    setCellRenderer(renderer);
+
+    // Force our renderer to be installed and configured (don’t rely on getCellRenderer timing)
+    setCellRenderer(this.renderer);
+    this.renderer.setClosedIcon(new TreeIcon(true));
+    this.renderer.setOpenIcon(new TreeIcon(false));
+    this.renderer.setLeafIcon(new TreeIcon(false)); // or a dedicated leaf icon if you have one
+
     addTreeSelectionListener(myListener);
 
     InputMap imap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -89,32 +148,36 @@ public class ProjectExplorer extends JTree implements LocaleListener {
     proj.addProjectListener(myListener);
     AppPreferences.GATE_SHAPE.addPropertyChangeListener(myListener);
     LocaleManager.addLocaleListener(this);
-    DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) getCellRenderer();
-    renderer.setClosedIcon(new TreeIcon(true));
-    renderer.setOpenIcon(new TreeIcon(false));
+    localeChanged();
   }
+
 
   public Tool getSelectedTool() {
     final var path = getSelectionPath();
     if (path == null) return null;
-    final var last = path.getLastPathComponent();
 
-    return (last instanceof ProjectExplorerToolNode)
-        ? ((ProjectExplorerToolNode) last).getValue()
-        : null;
+    final var last = unwrap(path.getLastPathComponent());
+    return (last instanceof ProjectExplorerToolNode toolNode) ? toolNode.getValue() : null;
   }
 
   public void updateStructure() {
-    ProjectExplorerModel model = (ProjectExplorerModel) getModel();
-    model.updateStructure();
+    baseModel.updateStructure();
+    if (filterTextNormalized != null && !filterTextNormalized.isEmpty()) {
+      rebuildFilteredModel();
+    }
   }
-
+  
   @Override
   public void localeChanged() {
-    // repaint() would work, except that names that get longer will be
-    // abbreviated with an ellipsis, even when they fit into the window.
-    final ProjectExplorerModel model = (ProjectExplorerModel) getModel();
-    model.fireStructureChanged();
+    // Base model must refresh names; renderer uses getDisplayName() at paint-time,
+    // but structure-change avoids ellipsis issues as original comment says.
+    baseModel.fireStructureChanged();
+
+    if (filterTextNormalized != null && !filterTextNormalized.isEmpty()) {
+      rebuildFilteredModel();
+    } else {
+      repaint();
+    }
   }
 
   public void setHaloedTool(Tool t) {
@@ -123,6 +186,65 @@ public class ProjectExplorer extends JTree implements LocaleListener {
 
   public void setListener(Listener value) {
     listener = value;
+  }
+
+  // Expand everything (filtered view should be fully expanded)
+  private void expandAll() {
+    for (int i = 0; i < getRowCount(); i++) {
+      expandRow(i);
+    }
+  }
+
+  private static Object unwrap(Object value) {
+    if (value instanceof ProjectExplorerModel.Node<?>) return value;
+
+    if (value instanceof DefaultMutableTreeNode dmtn && dmtn.getUserObject() != null) {
+      return dmtn.getUserObject();
+    }
+    return value;
+  }
+
+  // Returns a cloned node (DefaultMutableTreeNode) containing only matching tool leaves + ancestor path.
+  // - Keeps libraries/categories only if they have a matching descendant tool.
+  // - Matches only tool leaf nodes based on tool.getDisplayName() (same as renderer uses).
+  private DefaultMutableTreeNode filterNodeRecursive(DefaultMutableTreeNode node, String filterNorm) {
+    // Leaf tool node?
+    if (node instanceof ProjectExplorerToolNode toolNode) {
+      final var tool = toolNode.getValue();
+      if (tool == null) return null;
+      final var labelNorm = normalizeForSearch(tool.getDisplayName());
+      if (!labelNorm.contains(filterNorm)) return null;
+
+      // Keep the existing node object so selection + actions still work on real nodes.
+      // Wrap it in a DefaultMutableTreeNode to avoid modifying the original tree.
+      return new DefaultMutableTreeNode(toolNode);
+    }
+
+    // Library/category node?
+    if (node instanceof ProjectExplorerLibraryNode libNode) {
+      final var out = new DefaultMutableTreeNode(libNode);
+      final var children = node.children();
+      while (children.hasMoreElements()) {
+        final var ch = children.nextElement();
+        if (ch instanceof DefaultMutableTreeNode childNode) {
+          final var kept = filterNodeRecursive(childNode, filterNorm);
+          if (kept != null) out.add(kept);
+        }
+      }
+      return out.getChildCount() == 0 ? null : out;
+    }
+
+    // Any other node types (root might be ProjectExplorerLibraryNode, so this is mostly defensive)
+    final var out = new DefaultMutableTreeNode(node);
+    final var children = node.children();
+    while (children.hasMoreElements()) {
+      final var ch = children.nextElement();
+      if (ch instanceof DefaultMutableTreeNode childNode) {
+        final var kept = filterNodeRecursive(childNode, filterNorm);
+        if (kept != null) out.add(kept);
+      }
+    }
+    return out.getChildCount() == 0 ? null : out;
   }
 
   private class DeleteAction extends AbstractAction {
@@ -152,6 +274,9 @@ public class ProjectExplorer extends JTree implements LocaleListener {
         boolean leaf,
         int row,
         boolean hasFocus) {
+
+      Object actual = unwrap(value);
+
       java.awt.Component ret = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
       final var plainFont = AppPreferences.getScaledFont(ret.getFont());
       final var boldFont = new Font(plainFont.getFontName(), Font.BOLD, plainFont.getSize());
@@ -159,7 +284,7 @@ public class ProjectExplorer extends JTree implements LocaleListener {
       if (ret instanceof JComponent comp) {
         comp.setToolTipText(null);
       }
-      if (value instanceof ProjectExplorerToolNode toolNode) {
+      if (actual instanceof ProjectExplorerToolNode toolNode) {
         final var tool = toolNode.getValue();
         if (ret instanceof JLabel label) {
           var viewed = false;
@@ -182,7 +307,7 @@ public class ProjectExplorer extends JTree implements LocaleListener {
           label.setIcon(new ToolIcon(tool));
           label.setToolTipText(tool.getDescription());
         }
-      } else if (value instanceof ProjectExplorerLibraryNode libNode) {
+      } else if (actual instanceof ProjectExplorerLibraryNode libNode) {
         final var lib = libNode.getValue();
 
         if (ret instanceof JLabel) {
@@ -241,10 +366,13 @@ public class ProjectExplorer extends JTree implements LocaleListener {
     }
 
     void changedNode(Object o) {
-      final var model = (ProjectExplorerModel) getModel();
-      if (model != null && o instanceof Tool) {
-        final var node = model.findTool((Tool) o);
+      if (o instanceof Tool tool) {
+        final var node = baseModel.findTool(tool);
         if (node != null) node.fireNodeChanged();
+      }
+      // If filtering, rebuild to reflect updated names (e.g., circuit rename)
+      if (filterTextNormalized != null && !filterTextNormalized.isEmpty()) {
+        rebuildFilteredModel();
       }
     }
 
@@ -321,9 +449,9 @@ public class ProjectExplorer extends JTree implements LocaleListener {
     }
 
     private boolean isPathValid(TreePath path) {
-      return (path == null || path.getPathCount() > 3)
-          ? false
-          : path.getLastPathComponent() instanceof ProjectExplorerToolNode;
+      if (path == null) return false;
+      final var last = unwrap(path.getLastPathComponent());
+      return last instanceof ProjectExplorerToolNode;
     }
 
     @Override
@@ -464,9 +592,12 @@ public class ProjectExplorer extends JTree implements LocaleListener {
     public TreePath getTreePath() {
       return path;
     }
-
+    
+    
     public Object getTarget() {
-      return path == null ? null : path.getLastPathComponent();
+      if (path == null) return null;
+      return unwrap(path.getLastPathComponent());
     }
+
   }
 }
