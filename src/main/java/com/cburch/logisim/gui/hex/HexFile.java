@@ -309,30 +309,39 @@ public class HexFile {
       Frame parent, // for window positioning
       Project proj,
       Instance instance) { // for recent file access
-    final var S = com.cburch.logisim.std.Strings.S;
     final var mem = instance == null ? null : (Mem) instance.getFactory();
     final var recent = getRecent(proj, mem, instance);
 
-    final var chooser = createFileSaveChooser(recent, src);
-    chooser.setDialogTitle(S.get("ramSaveDialogTitle"));
-    final var choice = chooser.showSaveDialog(parent);
-    if (choice == JFileChooser.APPROVE_OPTION) {
-      final var f = chooser.getSelectedFile();
-      if (f.exists()) {
-        final var confirm =
-            OptionPane.showConfirmDialog(
-                parent,
-                S.get("confirmOverwriteMessage", f.getName()),
-                S.get("confirmOverwriteTitle"),
-                OptionPane.YES_NO_OPTION);
-        if (confirm != OptionPane.YES_OPTION) return;
+    long size=(1L << src.getLogLength()) * src.getValueWidth();
+    
+    if(size<34359738368L) // smaller than 4GB. Writing big files crashes the simulator
+    {
+
+      final var chooser = createFileSaveChooser(recent, src);
+      chooser.setDialogTitle(S.get("ramSaveDialogTitle"));
+      final var choice = chooser.showSaveDialog(parent);
+      if (choice == JFileChooser.APPROVE_OPTION) {
+        final var f = chooser.getSelectedFile();
+        if (f.exists()) {
+          final var confirm =
+              OptionPane.showConfirmDialog(
+                  parent,
+                  S.get("confirmOverwriteMessage", f.getName()),
+                  S.get("confirmOverwriteTitle"),
+                  OptionPane.YES_NO_OPTION);
+          if (confirm != OptionPane.YES_OPTION) return;
+        }
+        try {
+          save(f, src, chooser.getFileFilter().getDescription());
+          if (mem != null) mem.setCurrentImage(instance, f);
+        } catch (IOException e) {
+          OptionPane.showMessageDialog(parent, e.getMessage(), S.get("ramSaveErrorTitle"), OptionPane.ERROR_MESSAGE);
+        }
       }
-      try {
-        save(f, src, chooser.getFileFilter().getDescription());
-        if (mem != null) mem.setCurrentImage(instance, f);
-      } catch (IOException e) {
-        OptionPane.showMessageDialog(parent, e.getMessage(), S.get("ramSaveErrorTitle"), OptionPane.ERROR_MESSAGE);
-      }
+    }
+    else
+    {
+      OptionPane.showMessageDialog(parent, S.get("ramSaveErrorFileSizeMessage"), S.get("ramSaveErrorTitle"),  OptionPane.ERROR_MESSAGE);
     }
   }
 
