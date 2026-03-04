@@ -173,6 +173,12 @@ public class RiscvALU extends InstanceFactory {
            case 0x6:
                ans = (valueA < valueB) ? 1 : 0;
                break;
+           case 0x8:
+               ans = valueA % valueB; //rem
+               break;
+           case 0x9:
+               ans = valueA << valueB; //sll
+               break;
         }
 
         Value valueC = Value.createKnown(BitWidth.create(32), ans);

@@ -21,7 +21,6 @@ public class Components extends Library {
 
                 new AddTool(new RegisterFile32()),
                 new AddTool(new RiscvALU()),
-                new AddTool(new RiscvALUExtended()),
                 new AddTool(new RiscvMainDecoder()),
                 new AddTool(new RiscvMainDecoderExtended()),
                 new AddTool(new RiscvALUDecoder()),
