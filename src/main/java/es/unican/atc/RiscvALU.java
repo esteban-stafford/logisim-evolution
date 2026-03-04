@@ -95,10 +95,6 @@ public class RiscvALU extends InstanceFactory {
         xp = new int[] { x0, x1,               x1,               x0, x0,              x0 + width/3,  x0 };
         yp = new int[] { y0, y0 + height*3/10, y1 - height*3/10, y1, y1 - height*2/5, y1 - height/2, y1 - height*3/5 };
 
-        opWidth=DEFAULT_CONTROL_WIDTH;
-
-        //configurePorts();
-
         int wheel_size=Math.max(Math.max(LAT_BASE, LAT_MUL), LAT_DIV)+1; //Size the maximum of the latencies plus 1
         result_timing_wheel=new Value[wheel_size];
         init_wheel();
@@ -109,6 +105,7 @@ public class RiscvALU extends InstanceFactory {
 
     private void configurePorts(Instance instance)
     {
+        opWidth = instance.getAttributeValue(CONTROL_WIDTH);
         instance.setPorts(new Port[] {
 		new Port(interp(xp[6],xp[0],0.5), interp(yp[6],yp[0],0.5), Port.INPUT, 32), // A
 		new Port(interp(xp[3],xp[4],0.5), interp(yp[3],yp[4],0.5), Port.INPUT, 32), // B
@@ -266,7 +263,6 @@ public class RiscvALU extends InstanceFactory {
   @Override
   protected void instanceAttributeChanged(Instance instance, Attribute<?> attr) {
     if (attr == CONTROL_WIDTH) {
-      opWidth = instance.getAttributeValue(CONTROL_WIDTH);
       configurePorts(instance);
     }
     instance.fireInvalidated();
