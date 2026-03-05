@@ -33,6 +33,7 @@ public class RiscvALU extends InstanceFactory {
     private int opWidth;
 	  private int width = 60;
 	  private int height = 100;
+    boolean cleared;
 
     public static final int A = 0;
     public static final int B = 1;
@@ -41,7 +42,8 @@ public class RiscvALU extends InstanceFactory {
     public static final int C = 4;
     public static final int CLOCK = 5;
     public static final int CLEAR = 6;
-    public static final int READY = 7;
+    public static final int VALID = 7;
+    public static final int ENABLE = 8;
 
     public static final int LAT_BASE = 0;
     public static final int LAT_MUL = 3;
@@ -98,7 +100,8 @@ public class RiscvALU extends InstanceFactory {
         int wheel_size=Math.max(Math.max(LAT_BASE, LAT_MUL), LAT_DIV)+1; //Size the maximum of the latencies plus 1
         result_timing_wheel=new Value[wheel_size];
         init_wheel();
-
+        
+        cleared=true;
         lastClock=null;
         lastValue=Value.createUnknown(BitWidth.create(32));
     }
@@ -113,8 +116,9 @@ public class RiscvALU extends InstanceFactory {
 		new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.25), Port.OUTPUT, 1), // Z
 		new Port(interp(xp[1],xp[2],0.5), interp(yp[1],yp[2],0.5), Port.OUTPUT, 32), // C
                 new Port(interp(xp[0],xp[1],0.3334), interp(yp[3],yp[4],0.2), Port.INPUT, 1), // CLOCK
-                new Port(interp(xp[0],xp[1],0.6667), interp(yp[3],yp[4],0.4), Port.INPUT, 1),// CL
-                new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.75), Port.OUTPUT, 1) });// R
+                new Port(interp(xp[0],xp[1],0.6667), interp(yp[3],yp[4],0.4), Port.INPUT, 1),// CLEAR
+                new Port(interp(xp[1],xp[2],0.25), interp(yp[1],yp[2],0.75), Port.OUTPUT, 1),// VALID
+                new Port(interp(xp[0],xp[1],0.3334), interp(yp[0],yp[1],0.3334), Port.INPUT, 1)}); // ENABLE
     }
 
     private void init_wheel()
@@ -132,55 +136,62 @@ public class RiscvALU extends InstanceFactory {
 
     @Override
     public void propagate(InstanceState state) {
-
         if (state.getPortValue(CLEAR) == Value.TRUE) {
           init_wheel();
           lastClock=null;
           lastValue=Value.createUnknown(BitWidth.create(32));
+          cleared=true;
         }
 
         long valueA = state.getPortValue(A).toLongValue();
         long valueB = state.getPortValue(B).toLongValue();
+        long enabled = state.getPortValue(ENABLE).toLongValue();
+        var isPipelined = state.getAttributeValue(PIPELINED);
         Value newClock = state.getPortValue(CLOCK);
         int operation = (int)state.getPortValue(OP).toLongValue();
         long ans = 0L;
         int latency=LAT_BASE;
 
-        switch (operation) {
-           case 0x0:
-               ans = valueA + valueB;
-               break;
-           case 0x1:
-               ans = valueA - valueB;
-               break;
-           case 0x2:
-               ans = valueA & valueB;
-               break;
-           case 0x3:
-               ans = valueA | valueB;
-               break;
-           case 0x4:
-               ans = valueA * valueB;
-               latency=LAT_MUL;
-               break;
-           case 0x5:
-               ans = valueA / valueB;
-               latency=LAT_DIV;
-               break;
-           case 0x6:
-               ans = (valueA < valueB) ? 1 : 0;
-               break;
-           case 0x8:
-               ans = valueA % valueB; //rem
-               break;
-           case 0x9:
-               ans = valueA << valueB; //sll
-               break;
+        Value valueC;
+        if(enabled==1 || isPipelined == PIPELINED_OFF)
+        {
+          switch (operation) {
+             case 0x0:
+                 ans = valueA + valueB;
+                 break;
+             case 0x1:
+                 ans = valueA - valueB;
+                 break;
+             case 0x2:
+                 ans = valueA & valueB;
+                 break;
+             case 0x3:
+                 ans = valueA | valueB;
+                 break;
+             case 0x4:
+                 ans = valueA * valueB;
+                 latency=LAT_MUL;
+                 break;
+             case 0x5:
+                 ans = valueA / valueB;
+                 latency=LAT_DIV;
+                 break;
+             case 0x6:
+                 ans = (valueA < valueB) ? 1 : 0;
+                 break;
+             case 0x8:
+                 ans = valueA % valueB; //rem
+                 break;
+             case 0x9:
+                 ans = valueA << valueB; //sll
+                 break;
+          }
+          valueC = Value.createKnown(BitWidth.create(32), ans);
         }
-
-        Value valueC = Value.createKnown(BitWidth.create(32), ans);
-
-        var isPipelined = state.getAttributeValue(PIPELINED);
+        else{
+          valueC = Value.createUnknown(BitWidth.create(32));
+        }
+          
         if (isPipelined == PIPELINED_ON){
           Value oldClock = lastClock;
           lastClock=newClock;
@@ -192,6 +203,7 @@ public class RiscvALU extends InstanceFactory {
               result_timing_wheel[wheel_pos]=Value.createUnknown(BitWidth.create(32));
             }
             wheel_pos=(wheel_pos+1)%result_timing_wheel.length;
+            cleared=false;
           }
           else
           {
@@ -200,11 +212,11 @@ public class RiscvALU extends InstanceFactory {
         }
 
         Value valueZ = Value.createKnown(BitWidth.create(1), valueC.toLongValue() == 0 ? 1 : 0);
-        Value valueR = Value.createKnown(BitWidth.create(1), valueC.isUnknown() ? 0 : 1);
-
+        Value valueV = Value.createKnown(BitWidth.create(1), valueC.isUnknown() && !cleared ? 0 : 1);
+    
         state.setPort(C, valueC, 32);
         state.setPort(Z, valueZ, 1);
-        state.setPort(READY, valueR, 1);
+        state.setPort(VALID, valueV, 1);
         lastValue=valueC;
     }
 
@@ -239,7 +251,8 @@ public class RiscvALU extends InstanceFactory {
         if (opt == PIPELINED_ON) {
           painter.drawClock(CLOCK, Direction.NORTH);
           painter.drawPort(CLEAR, "CL", Direction.SOUTH);
-          painter.drawPort(READY, "R", Direction.WEST);
+          painter.drawPort(VALID, "V", Direction.WEST);
+          painter.drawPort(ENABLE, "E", Direction.NORTH);
         }
     }
 
